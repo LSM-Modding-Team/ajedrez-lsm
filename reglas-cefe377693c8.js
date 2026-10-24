@@ -209,7 +209,7 @@ function mkMatch(P, pA, pB, isDouble, roundType){
     whiteFirstIsP1, firstColorRule:2,
     roundType, // 'qf' | 'sf' | 'final' — determina la cascada de desempate
     games: isDouble ? [{result:null},{result:null}] : [{result:null}],
-    tiebreakWinner: null, // último recurso en cuartos/semis: empate también en conducta → criterio del árbitro
+    tiebreakWinner: null, // último recurso en cuartos/semis: empate también en conducta → B efectivo
     armageddon: null,     // solo se usa en la final, tras empate en dos partidas
   };
 }
@@ -294,7 +294,7 @@ function pMatchTally(match){
   match.games.forEach((gm,i)=>{
     if(!gm.result) return;
     played++;
-    const result=gm.result==='stalemate-white' ? (match.roundType==='final'?'draw':'black')
+    const result=gm.result==='time-draw' ? 'draw' : gm.result==='stalemate-white' ? (match.roundType==='final'?'draw':'black')
       : gm.result==='stalemate-black' ? (match.roundType==='final'?'draw':'white') : gm.result;
     const {white,black} = pGameColors(match,i);
     if(result==='draw'){ s1+=0.5; s2+=0.5; return; }
@@ -321,6 +321,7 @@ function pMatchWinner(match){
     return (match.armageddon && match.armageddon.winnerPid) || null; // decide el Armagedón
   }
   if(match.games.length < 2) return null; // falta la revancha con colores invertidos
+  if(match.games[0].result==='draw' && match.games[1].result==='time-draw') return match.whiteFirstIsP1==null ? null : pGameColors(match,0).white;
   const cw = pConductWinner(match);
   if(cw) return cw; // decide la conducta (menos penalizaciones)
   return match.whiteFirstIsP1==null ? null : pGameColors(match,0).white; // empate también en conducta: avanza quien empezó con blancas
@@ -492,7 +493,7 @@ function rankPlayers(pids, games, pointsOf, sbOf, winsOf, conductOf, overrideOf,
         if(c2.length===1){res.push(c2[0]); continue;}
         for(const c3 of clusterBy(c2, conductOf)){
           if(c3.length===1){res.push(c3[0]); continue;}
-          for(const c4 of clusterBy(c3, overrideOf)){
+          for(const roleCluster of clusterBy(c3, p=>pidRole(p)==='malo'?1:0)) for(const c4 of clusterBy(roleCluster, overrideOf)){
             if(c4.length>1) unresolved.push(c4);
             res.push(...c4);
           }
@@ -565,7 +566,7 @@ function combinedStatsS(S){
 /* ---- Explicación de desempate (para mostrar en arbitro/publico SOLO cuando de verdad decide algo) ----
    Cascada real (ver rankPlayers): puntos -> enfrentamiento directo (si el empate, tras el mini-torneo
    entre los empatados, se reduce a exactamente 2 jugadores que ya se enfrentaron) -> SB -> victorias
-   -> conducta -> desempate manual del árbitro. Devuelve null si a y b no están empatados en puntos
+   -> conducta -> B o B efectivo. Devuelve null si a y b no están empatados en puntos
    (no hace falta desempatar) o si están en empate total tras todos los criterios. */
 function tieBreakLabelS(S, g, a, b){
   const st = groupStatsS(S, g);
@@ -575,7 +576,8 @@ function tieBreakLabelS(S, g, a, b){
   if(st.sb[a] !== st.sb[b]) return 'SB (Sonneborn-Berger)';
   if(st.wins[a] !== st.wins[b]) return 'victorias';
   if(penaltyOf(a) !== penaltyOf(b)) return 'conducta';
-  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'desempate manual del árbitro';
+  if(pidRole(a)!==pidRole(b)) return 'prioridad B';
+  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'B efectivo (grado y edad)';
   return 'empate total (sin desempate)';
 }
 // Misma idea para comparar jugadores de grupos distintos (5º-8º puesto): no hay partidos entre
@@ -586,7 +588,8 @@ function tieBreakLabelCombinedS(S, a, b){
   if(cs.sb[a] !== cs.sb[b]) return 'SB (Sonneborn-Berger)';
   if(cs.wins[a] !== cs.wins[b]) return 'victorias';
   if(penaltyOf(a) !== penaltyOf(b)) return 'conducta';
-  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'desempate manual del árbitro';
+  if(pidRole(a)!==pidRole(b)) return 'prioridad B';
+  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'B efectivo (grado y edad)';
   return 'empate total (sin desempate)';
 }
 
@@ -623,7 +626,7 @@ function needsArmageddonS(match){
   const t = matchTallyS(match);
   return t.played===match.games.length && t.s1===t.s2;
 }
-// Comparación entre líderes: puntos, SB, victorias, conducta y árbitro. Sin enfrentamiento directo.
+// Comparación entre líderes: puntos, SB, victorias, conducta y B efectivo. Sin enfrentamiento directo.
 function finalColorRankingS(S){
   const pids=[groupLeaderS(S,'A'),groupLeaderS(S,'B')];
   if(pids.some(p=>!p)) return {order:[],unresolved:[]};

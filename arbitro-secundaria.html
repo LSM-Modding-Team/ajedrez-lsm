@@ -16,7 +16,7 @@
 
 
 <nav class="tabs" id="tabs"></nav>
-<details class="panel clock-help"><summary>Celulares, reloj y jugadas ilegales</summary><p>Un celular por tablero, exclusivamente como reloj con Chess Clock de Chess.com. Todos llevan el suyo como respaldo. Configura 5+0 en grupos; 15+0 en la final; Armagedón: blancas 15:00 y negras el tiempo de su puja.</p><p>Si detectas una jugada ilegal del rival, pausa el reloj y llama al profesor. Si confirma la infracción, añade 30 segundos a tu tiempo y reanuda la partida. Solo el árbitro modifica el reloj.</p><a href="manual.html#relojes">Ver preparación y descargas</a></details>
+<details class="panel clock-help"><summary>Celulares, reloj y jugadas ilegales</summary><p>Un celular por tablero, exclusivamente como reloj con Chess Clock de Chess.com. Todos llevan el suyo como respaldo. Configura 5+0 en grupos; 15+0 en la final; Armagedón: blancas 15:00 y negras el tiempo de su puja.</p><p>Si detectas una jugada ilegal del rival, pausa el reloj y llama al profesor. Si confirma la infracción, añade 30 segundos a tu tiempo y reanuda la partida. Solo el árbitro modifica el reloj. La jugada se completa al pulsarlo: no rige pieza tocada, pieza movida. Es legal esperar si el rival olvidó pulsar su reloj; se debe advertir esta estrategia a los jugadores. Si pasan dos medios-movimientos sin que ninguno pulse, el árbitro pausa, advierte y reanuda con el reloj de quien debe mover. Si el celular se apaga, vuelve a encenderlo; debe llegar bien cargado.</p><a href="manual.html#relojes">Ver preparación y descargas</a></details>
 <main id="app"></main>
 
 <footer class="databar">
@@ -32,7 +32,7 @@
   </details>
 </footer>
 
-<script src="reglas-b4f3fcffe510.js"></script>
+<script src="reglas-cefe377693c8.js"></script>
 <script>
 const MODE=SECONDARY_MODE;
 const CATEGORY=modalityMeta(MODE);
@@ -222,10 +222,10 @@ function renderStandingsTable(g){
     </table>
     ${flags.length? flags.map(([a,b])=>`
       <div class="warn">
-        Empate total entre ${playerName(a,MODE)} y ${playerName(b,MODE)} tras todos los criterios. Definan una partida rápida de desempate en el tablero y registren aquí el resultado:
+        Empate total entre ${playerName(a,MODE)} y ${playerName(b,MODE)} tras todos los criterios. Corresponde prioridad al B efectivo: menor grado y, a igual grado, menor edad. Indiquen quién cumple ese criterio; no se juega otra partida.
         <div class="rowbtns">
-          <button class="btn small" onclick="onOverrideWinner('${a}','${b}')">Ganó ${playerName(a,MODE)}</button>
-          <button class="btn small" onclick="onOverrideWinner('${b}','${a}')">Ganó ${playerName(b,MODE)}</button>
+          <button class="btn small" onclick="onOverrideWinner('${a}','${b}')">B efectivo: ${playerName(a,MODE)}</button>
+          <button class="btn small" onclick="onOverrideWinner('${b}','${a}')">B efectivo: ${playerName(b,MODE)}</button>
         </div>
       </div>
     `).join(''):''}
@@ -308,7 +308,7 @@ function renderMatchCard(title, key, match, opts){
       <div class="rowbtns">
         <button class="btn small" onclick="onChooseColor('${key}','${choiceFor(true)}')">${playerName(chooser,MODE)} juega con blancas</button>
         <button class="btn small" onclick="onChooseColor('${key}','${choiceFor(false)}')">${playerName(chooser,MODE)} juega con negras</button>
-      </div>` : `<div class="warn">Empate total entre finalistas. El árbitro define quién elige color.</div><div class="rowbtns">${[match.p1,match.p2].map(p=>`<button class="btn small" onclick="S.colorChoiceOverride={'${p}':1};save()">Elige ${playerName(p,MODE)}</button>`).join('')}</div>`}
+      </div>` : `<div class="warn">Empate total entre finalistas. Elige el B efectivo: menor grado; a igual grado, el más joven. Indica quién cumple el criterio.</div><div class="rowbtns">${[match.p1,match.p2].map(p=>`<button class="btn small" onclick="S.colorChoiceOverride={'${p}':1};save()">B efectivo: ${playerName(p,MODE)}</button>`).join('')}</div>`}
     `:`
       <div class="vs">
         <div class="side ${done&&winner===match.p1?'winner':''}">${chip(match.p1,MODE)}</div>

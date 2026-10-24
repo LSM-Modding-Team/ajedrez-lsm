@@ -17,6 +17,7 @@
 
 
 <nav class="tabs" id="tabs"></nav>
+<details class="panel" style="margin:0 34px 20px"><summary>Regla de tiempo para el árbitro · 20 minutos por partida</summary><p>Un solo tiempo compartido de 20 minutos, también en cada revancha y cada partida normal de la final. Al agotarse, gana quien tenga más puntos de material. El árbitro puede permitir que termine naturalmente si está muy cerca de resolverse. Si el material está igualado, puede esperar una ventaja; tras una captura deben pasar al menos dos medios-movimientos para descartar un intercambio.</p><p>Si el material sigue igualado al agotar el tiempo de la segunda partida de cuartos o semifinales, tras tablas regulares en la primera, registra la opción de tiempo y material igual: avanza B efectivo directamente. En la final se mantiene el Armagedón si el resultado es 1–1. Es una medida extrema: a los niños se les anuncia que existe un desempate y se explica si preguntan, sin promover que administren el juego para agotar el límite.</p></details>
 <main id="app"></main>
 
 <footer class="databar">
@@ -32,7 +33,7 @@
   </details>
 </footer>
 
-<script src="reglas-b4f3fcffe510.js"></script>
+<script src="reglas-cefe377693c8.js"></script>
 <script>
 let P = getPrimaria();
 let tab = 'sorteo';
@@ -237,6 +238,7 @@ function renderPMatchCard(title, key, match){
           <option value="">Sin jugar</option>
           <option value="white" ${gm.result==='white'?'selected':''}>Ganan blancas</option>
           <option value="black" ${gm.result==='black'?'selected':''}>Ganan negras</option>
+          ${!isFinal && i===1?`<option value="time-draw" ${gm.result==='time-draw'?'selected':''}>Tiempo agotado y material igual — avanza B efectivo</option>`:''}
           <option value="draw" ${gm.result==='draw'?'selected':''}>Tablas</option>
           ${!isFinal?`<option value="stalemate-white" ${gm.result==='stalemate-white'?'selected':''}>Blancas ahogadas — ganan negras</option><option value="stalemate-black" ${gm.result==='stalemate-black'?'selected':''}>Negras ahogadas — ganan blancas</option>`:''}
         </select>
@@ -250,12 +252,13 @@ function renderPMatchCard(title, key, match){
       </div>
     `:''}
 
-    ${tiedAfterRematch && pConductWinner(match) ?`
+    ${tiedAfterRematch && match.games[1].result!=='time-draw' && pConductWinner(match) ?`
       <div class="note">Empate 1–1 tras la revancha. Decide la conducta — penalizaciones: <b>${playerName(match.p1)}</b> ${penaltyOf(match.p1)} · <b>${playerName(match.p2)}</b> ${penaltyOf(match.p2)}. Avanza quien tiene menos.</div>
     `:''}
 
-    ${tiedAfterRematch && !pConductWinner(match)?`<div class="note">Empate 1–1 y en conducta: avanza ${playerName(pGameColors(match,0).white)}, quien inició con blancas.</div>`:''}
+    ${tiedAfterRematch && match.games[1].result!=='time-draw' && !pConductWinner(match)?`<div class="note">Empate 1–1 y en conducta: avanza ${playerName(pGameColors(match,0).white)}, quien inició con blancas.</div>`:''}
 
+    ${!isFinal && match.games[1]?.result==='time-draw'?`<div class="note">Material igual al agotar el tiempo de la revancha: avanza el B efectivo, quien inició con blancas.</div>`:''}
     ${pFinalNeedsArmageddon(match) ? renderArmageddon(key, match, ARMAGEDDON_MAX_SECONDS) : ''}
 
     ${done?`<div class="note" style="margin-top:8px">Avanza: <b>${playerName(winner)}</b></div>`:''}

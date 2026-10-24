@@ -50,7 +50,7 @@ Eliminación directa con cuartos A contra B, siempre de colores distintos:
 - Puntuación de grupo conservada: victoria 2, tablas 1, derrota 0.
 - Se conserva el motor anterior de desempates: mini-clasificación entre empatados;
   enfrentamiento directo al reducirse a dos (tablas favorecen a negras en el
-  código original); SB; victorias; conducta; decisión manual como último recurso.
+  código original); SB; victorias; conducta; B o B efectivo como último criterio.
 - **Solo el líder de cada grupo avanza. Sin semifinales.** La final se genera
   cuando ambos grupos están completos y sus líderes están definidos.
 - Final: **dos partidas 15+0**, alternando piezas. Empate 1-1 (incluidas dos
@@ -103,8 +103,7 @@ Si confirma la infracción, el árbitro añade 30 segundos al jugador afectado y
 
 La propuesta PDF incluye tiempos probables, máximos base y horarios de un solo día.
 El escenario requiere cuatro tableros para primaria y cuatro para secundaria; baja y alta
-comparten estos últimos en turnos sucesivos. El horario de primaria es provisional hasta
-acordar el ritmo de sus partidas y revanchas.
+comparten estos últimos en turnos sucesivos. Los horarios siguen orientativos y pendientes de coordinación. Primaria tiene 20 minutos compartidos por partida normal y revancha.
 
 ## Archivos y respaldos
 
@@ -112,7 +111,7 @@ acordar el ritmo de sus partidas y revanchas.
 - `arbitro-primaria.html` / `publico-primaria.html`: primaria.
 - `arbitro-secundaria.html?categoria=baja` / `publico-secundaria.html?categoria=baja`.
 - `arbitro-secundaria.html?categoria=alta` / `publico-secundaria.html?categoria=alta`.
-- `reglas-b4f3fcffe510.js` / `style.css`: reglas compartidas y diseño del torneo.
+- `reglas-cefe377693c8.js` / `style.css`: reglas compartidas y diseño del torneo.
 - `manual.html`: guía visual del árbitro integrada en el sitio.
 - `Propuesta_Reestructuracion_Olimpiadas_Ajedrez.pdf`: propuesta actualizada.
 
@@ -131,8 +130,8 @@ La configuración nueva usa `ajedrez_setup_v2`; las secundarias usan
 según lo acordado: aún no había datos registrados.
 
 El panel recuerda la última pestaña de cada secundaria. En la final, elige color
-quien tuvo mejor desempeño en grupos: puntos, SB, victorias, conducta y árbitro
-como último recurso. No se usa enfrentamiento directo entre grupos distintos.
+quien tuvo mejor desempeño en grupos: puntos, SB, victorias, conducta y B efectivo
+como último criterio. No se usa enfrentamiento directo entre grupos distintos.
 
 En primaria, B inicia con blancas contra A. En A-A o B-B, el árbitro asigna
 blancas al de menor grado y, a igual grado, al más joven. En cuartos y semifinales,
@@ -143,3 +142,11 @@ La interfaz utiliza grafito y un fondo ajedrecístico diagonal, con los cuatro c
 y recursos SVG locales. Funciona sin descargar fuentes o imágenes externas.
 En móvil, las partidas de grupo se muestran en filas verticales. El botón de
 guardar configuración permanece visible durante la edición.
+
+## Criterios de operación actualizados
+
+Primaria: 20 minutos compartidos por partida normal, revancha y partida de final; evaluación de material al límite con margen arbitral para desenlace próximo o material igualado. Esperar al menos dos medios-movimientos tras una captura. En revancha de cuartos/semifinales tras tablas regulares, tiempo agotado con material igualado da pase directo al B efectivo. Armagedón conserva 15 minutos por jugador como regla especial.
+
+Último desempate: B; entre iguales, menor grado y menor edad (B efectivo). El árbitro registra el criterio. En secundaria una jugada se completa al pulsar el reloj; no rige pieza tocada. Esperar si el rival no pulsó es legal y debe anunciarse. Tras dos medios-movimientos sin pulsaciones, el árbitro pausa, advierte y reanuda el reloj de quien debe mover.
+
+Sin tolerancia de llegada: el reloj comienza a la hora. Ante inasistencia o negativa, el color elige reemplazo; únicamente entonces puede subir desde una categoría inferior, nunca bajar. Un celular apagado se vuelve a encender; exigir batería cargada. Horarios pendientes del coordinador.
