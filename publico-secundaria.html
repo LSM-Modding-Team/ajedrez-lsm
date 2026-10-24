@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Olimpiadas de ajedrez — Secundaria</title>
+<link rel="stylesheet" href="style.css?v=f7cfc5d7d356">
+</head>
+<body class="page-publico-secundaria">
+<div class="sitebar"><a class="event-brand" href="index.html" aria-label="Olimpiadas escolares, inicio"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 7h5v5h5V7h5v5h5V7h5v12h-4l-2 12h6v4H8v-4h6l-2-12H8Z" fill="currentColor"/></svg><span>OLIMPIADAS<span>ESCOLARES / AJEDREZ</span></span></a><nav aria-label="Navegación principal"><a href="index.html">Torneos</a><a href="config.html">Configuración</a><a href="README-ARBITROS.pdf" target="_blank">Guía del árbitro ↗</a></nav></div>
+
+<header class="top">
+  <h1>Secundaria</h1>
+</header>
+
+
+<main class="wide" id="app"></main>
+
+<script src="reglas-6887458a6755.js"></script>
+<script>
+const MODE=SECONDARY_MODE;
+const CATEGORY=modalityMeta(MODE);
+document.title=document.title.replace('Secundaria',CATEGORY.label);
+document.querySelector('h1').textContent=document.querySelector('h1').textContent.replace('Secundaria',CATEGORY.label);
+document.querySelector('header').insertAdjacentHTML('beforeend',`<div class="rowbtns">${secondaryNav(location.pathname.split('/').pop())}</div>`);
+let S = getSecundaria();
+function nameShort(p){ return playerName(p,MODE); }
+
+function renderStandings(g){
+  const st = groupStatsS(S, g);
+  const order = groupOrderS(S, g);
+  return `
+  <div class="panel">
+    <div class="group-heading"><h2>Grupo ${g}</h2>
+    ${!groupCompleteS(S,g)?`<div class="note">En curso.</div>`:''}
+    </div>
+    <table>
+      <tr><th>Pos</th><th>Jugador</th><th class="num">Pts</th><th class="num">SB</th><th class="num">Vict.</th><th>Criterio</th><th></th></tr>
+      ${order.map((p,i)=>{
+        const decidedBy = i>0 ? tieBreakLabelS(S, g, order[i-1], p) : null;
+        return `
+        <tr>
+          <td class="pos">${i+1}º</td>
+          <td>${chip(p,MODE)}</td>
+          <td class="num mono">${st.points[p]}</td>
+          <td class="num mono">${st.sb[p]}</td>
+          <td class="num mono">${st.wins[p]}</td>
+          <td>${decidedBy?`<span class="chip" style="font-size:11px">↳ ${decidedBy}</span>`:''}</td>
+          <td>${i===0 && groupLeaderS(S,g)===p?'<span class="chip" style="border-color:var(--good);color:var(--good)">finalista</span>':''}</td>
+        </tr>`;
+      }).join('')}
+    </table>
+  </div>`;
+}
+
+function bktPlayerRowS(slot, whichP){
+  if(!slot) return `<div class="bkt-player"><div class="who"><span class="dot" style="--c:var(--line)"></span><span class="name" style="color:var(--ink-muted)">Por definir</span></div><div class="sc">–</div></div>`;
+  const p = whichP===1?slot.p1:slot.p2;
+  if(!p) return `<div class="bkt-player"><div class="who"><span class="dot" style="--c:var(--line)"></span><span class="name" style="color:var(--ink-muted)">Por definir</span></div><div class="sc">–</div></div>`;
+  const c = pidColor(p);
+  if(slot.provisional || !slot.colorChoice){
+    return `<div class="bkt-player adv"><div class="who"><span class="dot" style="--c:${COLOR_META[c].hex}"></span><span class="name">${nameShort(p)}</span></div><div class="sc">–</div></div>`;
+  }
+  const t = matchTallyS(slot);
+  const sc = whichP===1?t.s1:t.s2;
+  const winner = matchWinnerS(slot);
+  const adv = winner && winner===p;
+  return `
+    <div class="bkt-player ${adv?'adv':''}">
+      <div class="who"><span class="dot" style="--c:${COLOR_META[c].hex}"></span><span class="name">${nameShort(p)}</span></div>
+      <div class="sc">${sc}</div>
+    </div>`;
+}
+function bktMetaS(slot){
+  if(!slot) return `<div class="bkt-meta">Sin definir</div>`;
+  if(slot.provisional) return `<div class="bkt-meta">Pendiente de completar grupos</div>`;
+  if(!slot.colorChoice) return `<div class="bkt-meta">Falta elegir color</div>`;
+  if(!matchWinnerS(slot) && needsArmageddonS(slot)) return `<div class="bkt-meta">Empate — Armagedón en curso</div>`;
+  const winner = matchWinnerS(slot);
+  if(winner) return `<div class="bkt-meta">Definido</div>`;
+  const t = matchTallyS(slot);
+  if(t.played>0) return `<div class="bkt-meta">En curso</div>`;
+  return `<div class="bkt-meta">Sin jugar</div>`;
+}
+function bktBoxS(id, slot){
+  const decided = slot && !slot.provisional && slot.colorChoice && !!matchWinnerS(slot);
+  return `<div class="bkt-box ${!slot?'empty':''} ${decided?'decided':''}" id="${id}">
+    ${bktPlayerRowS(slot,1)}
+    ${bktPlayerRowS(slot,2)}
+    ${bktMetaS(slot)}
+  </div>`;
+}
+
+function renderColorPoints(){
+  const placements = computePlacementsS(S);
+  const colorTotals = Object.fromEntries(COLORS.map(c=>[c,0]));
+  if(placements){
+    Object.entries(placements).forEach(([p,place])=>{ colorTotals[pidColor(p)] += PLACE_POINTS_SECUNDARIA[place]||0; });
+  }
+  const weight = modalityWeight(MODE);
+  COLORS.forEach(c=>{ colorTotals[c] = scaledPoints(colorTotals[c], MODE); });
+  const hasAny = placements && Object.keys(placements).length>0;
+  const maxTotal = Math.max(1,...Object.values(colorTotals));
+  const colorRanked = COLORS.slice().sort((a,b)=>colorTotals[b]-colorTotals[a]);
+  return `
+  <div class="panel">
+    <h2>Puntaje por color</h2>
+    ${hasAny && !(S.final && matchWinnerS(S.final)) ? `<div class="note">Provisional: falta resolver la final.</div>` : ''}
+    ${!hasAny ? `<div class="note">Aún no hay resultados.</div>` : colorRanked.map((c,i)=>`
+      <div class="final-standing">
+        <div class="rank">${i+1}º</div>
+        <div style="width:110px" class="mono" style="color:${COLOR_META[c].hex}">${COLOR_META[c].label}</div>
+        <div class="colorbar"><div style="width:${(colorTotals[c]/maxTotal*100)}%; background:${COLOR_META[c].hex}"></div></div>
+        <div class="mono" style="min-width:70px; text-align:right">${formatPoints(colorTotals[c])}</div>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function render(){
+  if(!S.groups){
+    document.getElementById('app').innerHTML = `<div class="panel"><div class="warn">El sorteo de grupos todavía no se ha confirmado desde el panel del árbitro.</div></div>`;
+    return;
+  }
+  const finalSlot = S.final || provisionalFinalS(S);
+  const champion = S.final ? matchWinnerS(S.final) : null;
+
+  document.getElementById('app').innerHTML = `
+  <div class="group-columns">
+    ${renderStandings('A')}
+    ${renderStandings('B')}
+  </div>
+
+  <div class="public-layout">
+    <div class="bracket-wrap" id="bracketWrap">
+      <div class="bracket">
+        <div class="bracket-col col-final">
+          <div>
+            <div class="bkt-roundlabel">Final · 1.º A vs 1.º B · 15+0</div>
+            ${bktBoxS('mb-final', finalSlot)}
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    <div class="public-sidebar">
+      ${champion ? `
+        <div class="champ-mini">
+          <span class="trophy-mini" aria-hidden="true">♛</span>
+          <div><div class="label">Campeón</div><div class="name">${nameShort(champion)}</div></div>
+        </div>
+      ` : `
+        <div class="champ-mini pending">
+          <span class="trophy-mini" aria-hidden="true">♛</span>
+          <div><div class="label">Campeón</div><div class="name">Aún sin definir</div></div>
+        </div>
+      `}
+      ${renderColorPoints()}
+    </div>
+  </div>
+  `;
+
+}
+
+onLiveUpdate((key)=>{
+  if(key===LS_KEYS[MODE] || key===LS_KEYS.setup){ S = getSecundaria(); render(); }
+});
+
+
+render();
+</script>
+
+</body>
+</html>

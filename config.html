@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configuración — Olimpiadas de ajedrez</title>
+<link rel="stylesheet" href="style.css?v=f7cfc5d7d356">
+</head>
+<body class="page-control page-config">
+<div class="sitebar"><a class="event-brand" href="index.html" aria-label="Olimpiadas escolares, inicio"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 7h5v5h5V7h5v5h5V7h5v12h-4l-2 12h6v4H8v-4h6l-2-12H8Z" fill="currentColor"/></svg><span>OLIMPIADAS<span>ESCOLARES / AJEDREZ</span></span></a><nav aria-label="Navegación principal"><a href="index.html">Torneos</a><a href="config.html">Configuración</a><a href="README-ARBITROS.pdf" target="_blank">Guía del árbitro ↗</a></nav></div>
+
+<header class="top">
+  <h1>Configuración</h1>
+  <p>Dos jugadores por color y categoría. A: mayor grado; a igual grado, mayor edad.</p>
+</header>
+
+
+<main id="app"></main>
+
+<script src="reglas-6887458a6755.js"></script>
+<script>
+let setup = getSetup();
+
+function save(){
+  setup.locked = true;
+  saveSetup(setup);
+  render();
+}
+function unlock(){
+  if(!confirm('¿Editar la configuración guardada?')) return;
+  setup.locked = false;
+  render();
+}
+
+function renderConducta(){
+  const locked = !!setup.locked;
+  return `
+    <div class="panel">
+      <h2>Conducta por color</h2>
+      <div class="sub">Se comparte entre las tres categorías. Menos penalizaciones favorece en los desempates.</div>
+      <div class="grid4">
+        ${COLORS.map(c=>`
+          <div class="colorcard" style="--c:${COLOR_META[c].hex}">
+            <div class="name">${COLOR_META[c].label}</div>
+            <div class="field">
+              <label>Penalizaciones conductuales</label>
+              <input type="number" min="0" ${locked?'disabled':''} value="${setup.conduct[c]}"
+                oninput="setup.conduct['${c}']=this.value">
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+function renderDelegationBlock(mode, title, subtitle){
+  const locked = !!setup.locked;
+  const bucket = setup[mode];
+  return `
+    <div class="panel">
+      <h2>${title}</h2>
+      ${subtitle?`<div class="sub">${subtitle}</div>`:''}
+      <div class="grid4">
+        ${COLORS.map(c=>`
+          <div class="colorcard" style="--c:${COLOR_META[c].hex}">
+            <div class="name">${COLOR_META[c].label}</div>
+            <div class="field">
+              <label>Participante A</label>
+              <input type="text" ${locked?'disabled':''} value="${escapeHTML(bucket.players[c].bueno)}" placeholder="Nombre completo"
+                oninput="setup['${mode}'].players['${c}'].bueno=this.value">
+            </div>
+            <div class="field">
+              <label>Participante B</label>
+              <input type="text" ${locked?'disabled':''} value="${escapeHTML(bucket.players[c].malo)}" placeholder="Nombre completo"
+                oninput="setup['${mode}'].players['${c}'].malo=this.value">
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+function renderWeights(){
+  const locked=!!setup.locked;
+  return `<div class="panel"><h2>Multiplicadores de puntos</h2>
+    <div class="sub">Ajusta cuánto aporta cada categoría a las olimpiadas. El ajuste ×2.3 de primaria ya está incluido.</div>
+    <div class="grid4 weights-grid">${MODALITIES.map(m=>`<div class="colorcard" style="--c:var(--gold)">
+      <div class="name">${m.label}</div>
+      <div class="field"><label>Multiplicador olímpico</label><input type="number" min="0" step="any" ${locked?'disabled':''} value="${setup.weights[m.id]}" oninput="setup.weights['${m.id}']=this.value"></div>
+    </div>`).join('')}</div></div>`;
+}
+
+function render(){
+  const locked = !!setup.locked;
+  document.getElementById('app').innerHTML = `
+    ${renderConducta()}
+    ${MODALITIES.map(m=>renderDelegationBlock(m.id,m.label,'')).join('')}
+
+
+    ${renderWeights()}
+    <div class="panel config-actions">
+      ${locked ? `
+        <div class="good-note">Configuración guardada.</div>
+        <div class="rowbtns">
+          <button class="btn ghost" onclick="unlock()">Editar</button>
+        </div>
+      `:`
+        <div class="note" style="margin-bottom:10px">Cambios sin guardar.</div>
+        <div class="rowbtns">
+          <button class="btn" onclick="save()">Guardar cambios</button>
+        </div>
+      `}
+    </div>
+  `;
+}
+
+onLiveUpdate((key)=>{
+  // Si alguien reinicia/edita esto desde otra pestaña, refleja el cambio aquí también.
+  if(key===LS_KEYS.setup){ setup = getSetup(); render(); }
+});
+
+render();
+</script>
+
+</body>
+</html>

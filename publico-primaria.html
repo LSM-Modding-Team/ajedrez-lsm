@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Olimpiadas de ajedrez — Primaria</title>
+<link rel="stylesheet" href="style.css?v=f7cfc5d7d356">
+</head>
+<body class="page-publico-primaria">
+<div class="sitebar"><a class="event-brand" href="index.html" aria-label="Olimpiadas escolares, inicio"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 7h5v5h5V7h5v5h5V7h5v12h-4l-2 12h6v4H8v-4h6l-2-12H8Z" fill="currentColor"/></svg><span>OLIMPIADAS<span>ESCOLARES / AJEDREZ</span></span></a><nav aria-label="Navegación principal"><a href="index.html">Torneos</a><a href="config.html">Configuración</a><a href="README-ARBITROS.pdf" target="_blank">Guía del árbitro ↗</a></nav></div>
+
+<header class="top">
+  <h1>Primaria</h1><p>Cuartos y semifinales: el jugador con rey ahogado pierde. Final: el ahogado es tablas.</p>
+</header>
+
+
+<main class="wide" id="app"></main>
+
+<script src="reglas-6887458a6755.js"></script>
+<script>
+let P = getPrimaria();
+
+function nameShort(p){ return playerName(p); }
+
+function bktPlayerRow(slot, whichP){
+  if(!slot) return `<div class="bkt-player"><div class="who"><span class="dot" style="--c:var(--line)"></span><span class="name" style="color:var(--ink-muted)">Por definir</span></div><div class="sc">–</div></div>`;
+  const p = whichP===1?slot.p1:slot.p2;
+  if(!p) return `<div class="bkt-player"><div class="who"><span class="dot" style="--c:var(--line)"></span><span class="name" style="color:var(--ink-muted)">Por definir</span></div><div class="sc">–</div></div>`;
+  const c = pidColor(p);
+  if(slot.provisional){
+    // Ya se sabe quién ocupa este lado, pero el cruce completo todavía no existe como partido.
+    return `
+      <div class="bkt-player adv">
+        <div class="who"><span class="dot" style="--c:${COLOR_META[c].hex}"></span><span class="name">${nameShort(p)}</span></div>
+        <div class="sc">–</div>
+      </div>`;
+  }
+  const t = pMatchTally(slot);
+  const sc = whichP===1?t.s1:t.s2;
+  const winner = pMatchWinner(slot);
+  const adv = winner && winner===p;
+  return `
+    <div class="bkt-player ${adv?'adv':''}">
+      <div class="who"><span class="dot" style="--c:${COLOR_META[c].hex}"></span><span class="name">${nameShort(p)}</span></div>
+      <div class="sc">${sc}</div>
+    </div>`;
+}
+
+function bktMeta(slot){
+  if(!slot) return `<div class="bkt-meta">Sin definir</div>`;
+  if(!slot.provisional && slot.whiteFirstIsP1==null) return `<div class="bkt-meta">Falta asignar blancas por grado y edad</div>`;
+  if(slot.provisional) return `<div class="bkt-meta">Pendiente del otro cruce</div>`;
+  if(pNeedsRematch(slot)) return `<div class="bkt-meta">Empate — se juega la revancha</div>`;
+  if(pFinalNeedsArmageddon(slot)) return `<div class="bkt-meta">Empate 1–1 — Armagedón en curso</div>`;
+  const winner = pMatchWinner(slot);
+  if(winner) return `<div class="bkt-meta">Definido</div>`;
+  const t = pMatchTally(slot);
+  if(t.played>0) return `<div class="bkt-meta">En curso</div>`;
+  return `<div class="bkt-meta">Sin jugar</div>`;
+}
+
+function bktBox(id, slot){
+  const decided = slot && !slot.provisional && !!pMatchWinner(slot);
+  return `<div class="bkt-box ${!slot?'empty':''} ${decided?'decided':''}" id="${id}">
+    ${bktPlayerRow(slot,1)}
+    ${bktPlayerRow(slot,2)}
+    ${bktMeta(slot)}
+  </div>`;
+}
+
+function renderColorPoints(P){
+  const placements = computePlacementsPrimaria(P);
+  const colorTotals = Object.fromEntries(COLORS.map(c=>[c,0]));
+  if(placements){
+    Object.entries(placements).forEach(([p,place])=>{ colorTotals[pidColor(p)] += PLACE_POINTS_PRIMARIA[place]||0; });
+  }
+  const weight = modalityWeight('primaria');
+  COLORS.forEach(c=>{ colorTotals[c] = scaledPoints(colorTotals[c], 'primaria'); });
+  const hasAny = placements && Object.keys(placements).length>0;
+  const maxTotal = Math.max(1,...Object.values(colorTotals));
+  const colorRanked = COLORS.slice().sort((a,b)=>colorTotals[b]-colorTotals[a]);
+  return `
+  <div class="panel">
+    <h2>Puntaje final por color</h2>
+    ${!hasAny ? `<div class="note">Aún no hay resultados.</div>` : colorRanked.map((c,i)=>`
+      <div class="final-standing">
+        <div class="rank">${i+1}º</div>
+        <div style="width:110px" class="mono" style="color:${COLOR_META[c].hex}">${COLOR_META[c].label}</div>
+        <div class="colorbar"><div style="width:${(colorTotals[c]/maxTotal*100)}%; background:${COLOR_META[c].hex}"></div></div>
+        <div class="mono" style="min-width:70px; text-align:right">${formatPoints(colorTotals[c])}</div>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function render(){
+  if(!P.bracket){
+    document.getElementById('app').innerHTML = `<div class="panel"><div class="warn">El sorteo de llaves todavía no se ha confirmado desde el panel del árbitro.</div></div>`;
+    return;
+  }
+  const M = P.matches;
+  const sfSlot = half => M.SF[half] || pProvisionalSF(P, half);
+  const finalSlot = M.FINAL || pProvisionalFinal(P);
+  const champion = M.FINAL ? pMatchWinner(M.FINAL) : null;
+
+  document.getElementById('app').innerHTML = `
+  <div class="public-layout">
+    <div class="bracket-wrap" id="bracketWrap">
+      <div class="bracket">
+        <div class="bracket-col">
+          <div class="bracket-half">
+            <div>
+              <div class="bkt-roundlabel">Cuartos · Llave 1</div>
+              ${bktBox('mb-qf-h1a', M.QF.h1a)}
+            </div>
+            <div>${bktBox('mb-qf-h1b', M.QF.h1b)}</div>
+          </div>
+          <div class="bracket-half">
+            <div>
+              <div class="bkt-roundlabel">Cuartos · Llave 2</div>
+              ${bktBox('mb-qf-h2a', M.QF.h2a)}
+            </div>
+            <div>${bktBox('mb-qf-h2b', M.QF.h2b)}</div>
+          </div>
+        </div>
+        <div class="bracket-col">
+          <div>
+            <div class="bkt-roundlabel">Semifinal 1</div>
+            ${bktBox('mb-sf-h1', sfSlot('h1'))}
+          </div>
+          <div>
+            <div class="bkt-roundlabel">Semifinal 2</div>
+            ${bktBox('mb-sf-h2', sfSlot('h2'))}
+          </div>
+        </div>
+        <div class="bracket-col col-final">
+          <div>
+            <div class="bkt-roundlabel">Gran Final</div>
+            ${bktBox('mb-final', finalSlot)}
+          </div>
+        </div>
+      </div>
+      <svg class="bracket-svg" id="bracketSvg"></svg>
+    </div>
+    <div class="public-sidebar">
+      ${champion ? `
+        <div class="champ-mini">
+          <span class="trophy-mini" aria-hidden="true">♛</span>
+          <div><div class="label">Campeón</div><div class="name">${nameShort(champion)}</div></div>
+        </div>
+      ` : `
+        <div class="champ-mini pending">
+          <span class="trophy-mini" aria-hidden="true">♛</span>
+          <div><div class="label">Campeón</div><div class="name">Aún sin definir</div></div>
+        </div>
+      `}
+      ${renderColorPoints(P)}
+    </div>
+  </div>
+  `;
+  requestAnimationFrame(drawConnectors);
+}
+
+function drawConnectors(){
+  const wrap = document.getElementById('bracketWrap');
+  const svg = document.getElementById('bracketSvg');
+  if(!wrap || !svg) return;
+  const wrapRect = wrap.getBoundingClientRect();
+  svg.setAttribute('width', wrap.scrollWidth);
+  svg.setAttribute('height', wrap.scrollHeight);
+  svg.innerHTML = '';
+
+  function pt(id, side){
+    const el = document.getElementById(id);
+    if(!el) return null;
+    const r = el.getBoundingClientRect();
+    const x = side==='right' ? (r.right - wrapRect.left + wrap.scrollLeft) : (r.left - wrapRect.left + wrap.scrollLeft);
+    const y = r.top + r.height/2 - wrapRect.top + wrap.scrollTop;
+    return {x,y};
+  }
+  function addPath(fromId, toId, lit){
+    const from = pt(fromId,'right'), to = pt(toId,'left');
+    if(!from || !to) return;
+    const midX = (from.x + to.x)/2;
+    const d = `M ${from.x} ${from.y} H ${midX} V ${to.y} H ${to.x}`;
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', d);
+    path.setAttribute('class', 'connector'+(lit?' lit':''));
+    svg.appendChild(path);
+  }
+  const M = P.matches;
+  addPath('mb-qf-h1a','mb-sf-h1', !!pMatchWinner(M.QF.h1a));
+  addPath('mb-qf-h1b','mb-sf-h1', !!pMatchWinner(M.QF.h1b));
+  addPath('mb-qf-h2a','mb-sf-h2', !!pMatchWinner(M.QF.h2a));
+  addPath('mb-qf-h2b','mb-sf-h2', !!pMatchWinner(M.QF.h2b));
+  addPath('mb-sf-h1','mb-final', M.SF.h1 ? !!pMatchWinner(M.SF.h1) : false);
+  addPath('mb-sf-h2','mb-final', M.SF.h2 ? !!pMatchWinner(M.SF.h2) : false);
+}
+
+onLiveUpdate((key)=>{
+  if(key===LS_KEYS.primaria || key===LS_KEYS.setup){ P = getPrimaria(); render(); }
+});
+window.addEventListener('resize', ()=>requestAnimationFrame(drawConnectors));
+
+render();
+</script>
+
+</body>
+</html>
