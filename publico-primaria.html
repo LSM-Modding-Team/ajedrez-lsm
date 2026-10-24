@@ -48,7 +48,7 @@ function bktPlayerRow(slot, whichP){
 
 function bktMeta(slot){
   if(!slot) return `<div class="bkt-meta">Sin definir</div>`;
-  if(!slot.provisional && slot.whiteFirstIsP1==null) return `<div class="bkt-meta">Falta asignar blancas por grado y edad</div>`;
+  if(!slot.provisional && slot.whiteFirstIsP1==null) return `<div class="bkt-meta">Falta asignar blancas por grado y fecha de nacimiento</div>`;
   if(slot.provisional) return `<div class="bkt-meta">Pendiente del otro cruce</div>`;
   if(pNeedsRematch(slot)) return `<div class="bkt-meta">Empate — se juega la revancha</div>`;
   if(pFinalNeedsArmageddon(slot)) return `<div class="bkt-meta">Empate 1–1 — Armagedón en curso</div>`;

@@ -23,7 +23,7 @@ abre otro almacenamiento; no uses modo privado ni borres los datos del navegador
 ## Participantes y configuración
 
 - Hay cuatro colores: rojo, azul, verde y amarillo.
-- **A = mayor grado; si coinciden en grado, mayor edad. B = el otro jugador.**
+- **A = mayor grado; si coinciden en grado, fecha de nacimiento más antigua. B = el otro jugador.**
   Aplica a las tres categorías. No se clasifican por habilidad ajedrecística.
 - Registra manualmente los nombres en las casillas A/B correspondientes.
 - Nombres, multiplicadores, sorteos y resultados se separan por categoría.
@@ -134,7 +134,7 @@ quien tuvo mejor desempeño en grupos: puntos, SB, victorias, conducta y B efect
 como último criterio. No se usa enfrentamiento directo entre grupos distintos.
 
 En primaria, B inicia con blancas contra A. En A-A o B-B, el árbitro asigna
-blancas al de menor grado y, a igual grado, al más joven. En cuartos y semifinales,
+blancas al de menor grado y, a igual grado, a quien nació después. En cuartos y semifinales,
 el jugador con rey ahogado pierde (regla anunciada previamente). En la final,
 el ahogado es tablas. Los puestos se agrupan en 3.º-4.º y 5.º-8.º sin desempates.
 
@@ -147,6 +147,6 @@ guardar configuración permanece visible durante la edición.
 
 Primaria: 20 minutos compartidos por partida normal, revancha y partida de final; evaluación de material al límite con margen arbitral para desenlace próximo o material igualado. Esperar al menos dos medios-movimientos tras una captura. En revancha de cuartos/semifinales tras tablas regulares, tiempo agotado con material igualado da pase directo al B efectivo. Armagedón conserva 15 minutos por jugador como regla especial.
 
-Último desempate: B; entre iguales, menor grado y menor edad (B efectivo). El árbitro registra el criterio. En secundaria una jugada se completa al pulsar el reloj; no rige pieza tocada. Esperar si el rival no pulsó es legal y debe anunciarse. Tras dos medios-movimientos sin pulsaciones, el árbitro pausa, advierte y reanuda el reloj de quien debe mover.
+Último desempate: B; entre iguales, menor grado y fecha de nacimiento más reciente (B efectivo). El árbitro registra el criterio. En secundaria una jugada se completa al pulsar el reloj; no rige pieza tocada. Esperar si el rival no pulsó es legal y debe anunciarse. Tras dos medios-movimientos sin pulsaciones, el árbitro pausa, advierte y reanuda el reloj de quien debe mover.
 
 Sin tolerancia de llegada: el reloj comienza a la hora. Ante inasistencia o negativa, el color elige reemplazo; únicamente entonces puede subir desde una categoría inferior, nunca bajar. Un celular apagado se vuelve a encender; exigir batería cargada. Horarios pendientes del coordinador.

@@ -213,7 +213,7 @@ function renderProvisionalCard(title, prov){
 
 function renderPMatchCard(title, key, match){
   if(!match) return `<div class="matchcard"><h3>${title}</h3><div class="note">Pendiente de que se definan ambos clasificados.</div></div>`;
-  if(match.whiteFirstIsP1==null) return `<div class="matchcard"><h3>${title}</h3><div class="note">Empieza con blancas quien curse menor grado; a igual grado, el más joven.</div><div class="rowbtns">${[match.p1,match.p2].map((p,i)=>`<button class="btn small" onclick="onFirstWhite('${key}',${i===0})">Blancas: ${playerName(p)}</button>`).join('')}</div></div>`;
+  if(match.whiteFirstIsP1==null) return `<div class="matchcard"><h3>${title}</h3><div class="note">Empieza con blancas quien curse menor grado; a igual grado, quien nació después.</div><div class="rowbtns">${[match.p1,match.p2].map((p,i)=>`<button class="btn small" onclick="onFirstWhite('${key}',${i===0})">Blancas: ${playerName(p)}</button>`).join('')}</div></div>`;
   const t = pMatchTally(match);
   const winner = pMatchWinner(match);
   const done = !!winner;

@@ -222,7 +222,7 @@ function renderStandingsTable(g){
     </table>
     ${flags.length? flags.map(([a,b])=>`
       <div class="warn">
-        Empate total entre ${playerName(a,MODE)} y ${playerName(b,MODE)} tras todos los criterios. Corresponde prioridad al B efectivo: menor grado y, a igual grado, menor edad. Indiquen quién cumple ese criterio; no se juega otra partida.
+        Empate total entre ${playerName(a,MODE)} y ${playerName(b,MODE)} tras todos los criterios. Corresponde prioridad al B efectivo: menor grado y, a igual grado, fecha de nacimiento más reciente. Indiquen quién cumple ese criterio; no se juega otra partida.
         <div class="rowbtns">
           <button class="btn small" onclick="onOverrideWinner('${a}','${b}')">B efectivo: ${playerName(a,MODE)}</button>
           <button class="btn small" onclick="onOverrideWinner('${b}','${a}')">B efectivo: ${playerName(b,MODE)}</button>
@@ -308,7 +308,7 @@ function renderMatchCard(title, key, match, opts){
       <div class="rowbtns">
         <button class="btn small" onclick="onChooseColor('${key}','${choiceFor(true)}')">${playerName(chooser,MODE)} juega con blancas</button>
         <button class="btn small" onclick="onChooseColor('${key}','${choiceFor(false)}')">${playerName(chooser,MODE)} juega con negras</button>
-      </div>` : `<div class="warn">Empate total entre finalistas. Elige el B efectivo: menor grado; a igual grado, el más joven. Indica quién cumple el criterio.</div><div class="rowbtns">${[match.p1,match.p2].map(p=>`<button class="btn small" onclick="S.colorChoiceOverride={'${p}':1};save()">B efectivo: ${playerName(p,MODE)}</button>`).join('')}</div>`}
+      </div>` : `<div class="warn">Empate total entre finalistas. Elige el B efectivo: menor grado; a igual grado, quien nació después. Indica quién cumple el criterio.</div><div class="rowbtns">${[match.p1,match.p2].map(p=>`<button class="btn small" onclick="S.colorChoiceOverride={'${p}':1};save()">B efectivo: ${playerName(p,MODE)}</button>`).join('')}</div>`}
     `:`
       <div class="vs">
         <div class="side ${done&&winner===match.p1?'winner':''}">${chip(match.p1,MODE)}</div>
