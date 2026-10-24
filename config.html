@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Configuración — Olimpiadas de ajedrez</title>
-<link rel="stylesheet" href="style.css?v=ecfa4e0114fe">
+<link rel="stylesheet" href="style.css?v=7bffda414e56">
 </head>
 <body class="page-control page-config">
 <div class="sitebar"><a class="event-brand" href="index.html" aria-label="Olimpiadas escolares, inicio"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 7h5v5h5V7h5v5h5V7h5v12h-4l-2 12h6v4H8v-4h6l-2-12H8Z" fill="currentColor"/></svg><span>OLIMPIADAS<span>ESCOLARES / AJEDREZ</span></span></a><nav aria-label="Navegación principal"><a href="index.html">Torneos</a><a href="config.html">Configuración</a><a href="manual.html">Guía del árbitro</a></nav></div>
@@ -17,7 +17,7 @@
 
 <main id="app"></main>
 
-<script src="reglas-cefe377693c8.js"></script>
+<script src="reglas-fc1ea596cc3d.js"></script>
 <script>
 let setup = getSetup();
 
@@ -83,7 +83,7 @@ function renderDelegationBlock(mode, title, subtitle){
 function renderWeights(){
   const locked=!!setup.locked;
   return `<div class="panel"><h2>Multiplicadores de puntos</h2>
-    <div class="sub">Ajusta cuánto aporta cada categoría a las olimpiadas. El ajuste ×2.3 de primaria ya está incluido.</div>
+    <div class="sub">Ajusta cuánto aporta cada categoría a las olimpiadas. Las tres categorías reparten 46 puntos base.</div>
     <div class="grid4 weights-grid">${MODALITIES.map(m=>`<div class="colorcard" style="--c:var(--gold)">
       <div class="name">${m.label}</div>
       <div class="field"><label>Multiplicador olímpico</label><input type="number" min="0" step="any" ${locked?'disabled':''} value="${setup.weights[m.id]}" oninput="setup.weights['${m.id}']=this.value"></div>

@@ -4,143 +4,260 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel del árbitro — Primaria</title>
-<link rel="stylesheet" href="style.css?v=ecfa4e0114fe">
+<link rel="stylesheet" href="style.css?v=7bffda414e56">
 </head>
-<body class="page-control page-arbitro-primaria">
+<body class="page-control page-arbitro-secundaria">
 <div class="sitebar"><a class="event-brand" href="index.html" aria-label="Olimpiadas escolares, inicio"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 7h5v5h5V7h5v5h5V7h5v12h-4l-2 12h6v4H8v-4h6l-2-12H8Z" fill="currentColor"/></svg><span>OLIMPIADAS<span>ESCOLARES / AJEDREZ</span></span></a><nav aria-label="Navegación principal"><a href="index.html">Torneos</a><a href="config.html">Configuración</a><a href="manual.html">Guía del árbitro</a></nav></div>
 
 <header class="top">
   <div class="eyebrow">Panel del árbitro</div>
   <h1>Primaria</h1>
-  <p id="headerSub">Cuartos · Semifinales · Final</p>
 </header>
 
 
 <nav class="tabs" id="tabs"></nav>
-<details class="panel" style="margin:0 34px 20px"><summary>Regla de tiempo para el árbitro · 20 minutos por partida</summary><p>Un solo tiempo compartido de 20 minutos, también en cada revancha y cada partida normal de la final. Al agotarse, gana quien tenga más puntos de material. El árbitro puede permitir que termine naturalmente si está muy cerca de resolverse. Si el material está igualado, puede esperar una ventaja; tras una captura deben pasar al menos dos medios-movimientos para descartar un intercambio.</p><p>Si el material sigue igualado al agotar el tiempo de la segunda partida de cuartos o semifinales, tras tablas regulares en la primera, registra la opción de tiempo y material igual: avanza B efectivo directamente. En la final se mantiene el Armagedón si el resultado es 1–1. Es una medida extrema: a los niños se les anuncia que existe un desempate y se explica si preguntan, sin promover que administren el juego para agotar el límite.</p></details>
+<details class="panel clock-help"><summary>Reglas de primaria</summary><p>Grupos: 20 minutos por partida, sin reloj individual. Al agotarse, congela el tablero. Victoria con ventaja de al menos 2 puntos de material; con un punto o igualdad, tablas. Peón 1 · caballo 3 · alfil 3 · torre 5 · dama 9; el rey no puntúa. Solo excepcionalmente el árbitro permite una recaptura si el corte falsea un intercambio.</p><p>Pieza soltada, pieza movida en todas las fases. Ahogado: tablas. Final: dos partidas de 15+0 y Armagedón si queda 1–1. Un organizador aporta el celular y supervisa el reloj, pulsándolo si los niños se olvidan; no se permite aprovechar esos olvidos.</p><a href="manual.html#primaria">Ver guía de primaria</a></details>
 <main id="app"></main>
 
 <footer class="databar">
   <details>
     <summary>Copia de seguridad de los datos de esta modalidad (exportar / importar)</summary>
-    <div class="note">Esto exporta/importa solo el sorteo y los resultados de primaria (no los nombres ni la conducta, que viven en la página de configuración).</div>
+    <div class="note">Respaldo del torneo. Nombres y conducta se guardan en Configuración.</div>
     <textarea class="databox" id="dataBox" placeholder="Aquí aparece / se pega el estado en JSON"></textarea>
     <div class="rowbtns">
       <button class="btn ghost small" onclick="exportState()">Exportar estado</button>
       <button class="btn ghost small" onclick="importState()">Importar estado</button>
-      <button class="btn ghost small" onclick="if(confirm('¿Reiniciar todo el sorteo y los resultados de primaria? Esta acción no se puede deshacer.')){P=freshPrimaria(); save();}">Reiniciar primaria</button>
+      <button class="btn ghost small" onclick="if(confirm('¿Reiniciar todo el sorteo y los resultados de esta categoría? Esta acción no se puede deshacer.')){S=freshPrimaria(); save();}">Reiniciar categoría</button>
     </div>
   </details>
 </footer>
 
-<script src="reglas-cefe377693c8.js"></script>
+<script src="reglas-fc1ea596cc3d.js"></script>
 <script>
-let P = getPrimaria();
-let tab = 'sorteo';
+const MODE='primaria';
+const CATEGORY=modalityMeta(MODE);
+document.title=document.title.replace('Secundaria',CATEGORY.label);
+document.querySelector('h1').textContent=document.querySelector('h1').textContent.replace('Secundaria',CATEGORY.label);
+
+let S = getPrimaria();
+const TAB_KEY='ajedrez_tab_'+MODE;
+let tab=localStorage.getItem(TAB_KEY)||'sorteo';
 const TABS = [
-  {id:'sorteo', label:'1 · Sorteo de llaves'},
-  {id:'llaves', label:'2 · Llaves'},
-  {id:'puntos', label:'3 · Puntos olimpiada'},
+  {id:'sorteo', label:'1 · Sorteo'},
+  {id:'grupos', label:'2 · Grupos'},
+  {id:'clasif', label:'3 · Clasificación'},
+  {id:'final', label:'4 · Final'},
+  {id:'puntos', label:'5 · Puntos olimpiada'},
 ];
 
-function save(){ savePrimaria(P); render(); }
-function matchByKey(key){
-  let node = P.matches;
-  for(const part of key.split('.')) node = node[part];
-  return node;
-}
+function save(){ saveSecundaria(S); render(); }
 
-/* ---- Sorteo ---- */
-function shuffleSeedUI(){ P.seedOrder = shuffleSeedArr(); render(); }
-function confirmBracketUI(){ if(confirmBracket(P)){ tab='llaves'; save(); } }
-function resetBracketUI(){
-  if(!confirm('Esto borra toda la llave y sus resultados. ¿Continuar?')) return;
-  P.bracket=null; P.matches=null; save();
+/* ---- Sorteo y grupos ---- */
+function shuffleSeedUI(){ S.seedOrder = shuffleSeedArr(); render(); }
+function confirmGroupsUI(){ if(confirmGroupsS(S)){ tab='grupos'; save(); } }
+function resetGroupsUI(){
+  if(!confirm('Esto borra los grupos y todos los resultados de esta categoría. ¿Continuar?')) return;
+  S = freshPrimaria(); save();
 }
-
-/* ---- Llaves: acciones sobre partidos ---- */
-function onResult(key, idx, value){
-  const match=matchByKey(key);
-  setGameResult(match,idx,value);match.armageddon=null;autoAdvance(P);
-  // El re-render reemplaza el <select> que acaba de disparar este evento; si se hace de forma
-  // síncrona, el navegador a veces todavía está cerrando el desplegable nativo y el cambio de DOM
-  // lo deja en un estado raro (parece que "no tomó" la selección). Diferir un tick lo evita.
+function onGroupResult(g, idx, value){
+  S.groupGames[g][idx].result = value || null; autoAdvanceS(S);
+  // Diferido para no reemplazar el <select> mientras el navegador aún cierra el desplegable nativo
+  // (si no, a veces la selección "no toma" y hay que repetirla).
   setTimeout(save, 0);
 }
-function onFirstWhite(key,p1White){ matchByKey(key).whiteFirstIsP1=p1White;save(); }
-function onRematch(key){ pushRematchGame(matchByKey(key)); autoAdvance(P); save(); }
+function onOverrideWinner(p, otherP){ setOverrideWinnerS(S, p, otherP); autoAdvanceS(S); save(); }
 
-/* ---- Armagedón (solo la final) ---- */
+/* ---- Final ---- */
+function onChooseColor(which, choice){
+  const match = S.final;
+  match.colorChoice = choice; save();
+}
+function onSMatchResult(which, idx, value){
+  const match = S.final;
+  match.games[idx].result = value || null;
+  match.armageddon=null;
+  autoAdvanceS(S);
+  // Diferido por la misma razón que onGroupResult: evita el bug del <select> que se queda
+  // pegado cuando el re-render lo destruye justo mientras se cierra el desplegable nativo.
+  setTimeout(save, 0);
+}
+
+/* ---- Armagedón de la final ---- */
+function armaKeyMatch(key){ return S.final; }
 function armaRegisterBid(key, maxSeconds){
-  const m = matchByKey(key);
+  const m = armaKeyMatch(key);
   const m1 = document.getElementById(key+'_bid1_min').value;
   const s1 = document.getElementById(key+'_bid1_sec').value;
   const m2 = document.getElementById(key+'_bid2_min').value;
   const s2 = document.getElementById(key+'_bid2_sec').value;
-  if(m1===''&&s1===''){ alert('Completa la puja de '+playerName(m.p1)+'.'); return; }
-  if(m2===''&&s2===''){ alert('Completa la puja de '+playerName(m.p2)+'.'); return; }
+  if(m1===''&&s1===''){ alert('Completa la puja de '+playerName(m.p1,MODE)+'.'); return; }
+  if(m2===''&&s2===''){ alert('Completa la puja de '+playerName(m.p2,MODE)+'.'); return; }
   const n1=Math.max(0,Math.min(maxSeconds,(parseInt(m1||0,10)*60)+parseInt(s1||0,10)));
   const n2=Math.max(0,Math.min(maxSeconds,(parseInt(m2||0,10)*60)+parseInt(s2||0,10)));
   registerArmageddonBid(m, maxSeconds, n1, n2);
   save();
 }
-function armaRandom(key){ randomArmageddonColors(matchByKey(key)); save(); }
-function armaSetWinner(key, winnerPid){ setArmageddonWinner(matchByKey(key), winnerPid); autoAdvance(P); save(); }
+function armaRandom(key){ randomArmageddonColors(armaKeyMatch(key)); save(); }
+function armaSetWinner(key, winnerPid){ setArmageddonWinner(armaKeyMatch(key), winnerPid); autoAdvanceS(S); save(); }
 
-/* ---- Export/import (solo primaria) ---- */
-function exportState(){ document.getElementById('dataBox').value = JSON.stringify(P, null, 2); }
+/* ---- Export/import ---- */
+function exportState(){ document.getElementById('dataBox').value = JSON.stringify(S, null, 2); }
 function importState(){
-  try{ P = JSON.parse(document.getElementById('dataBox').value); save(); }
+  try{
+    const imported=JSON.parse(document.getElementById('dataBox').value);
+    if(imported.category!==MODE) throw new Error('La copia no corresponde a '+CATEGORY.label+'.');
+    if(!Array.isArray(imported.seedOrder) || imported.seedOrder.length!==4 || !imported.manualOverride ||
+       (imported.groups && !['A','B'].every(g=>Array.isArray(imported.groups[g]) && imported.groups[g].length===4 && Array.isArray(imported.groupGames?.[g]) && imported.groupGames[g].length===6)) ||
+       (imported.final && (!Array.isArray(imported.final.games) || imported.final.games.length!==2))) throw new Error('Estructura de torneo inválida.');
+    S=imported; autoAdvanceS(S); save();
+  }
   catch(e){ alert('JSON inválido: '+e.message); }
 }
 
 /* ============================= RENDER ============================= */
+function timerAction(action){
+  if(action==='reset' && !confirm('¿Restablecer esta ronda a 20:00?')) return;
+  if(setPrimaryTimer(S,action)) save();
+}
+function timerRound(value){
+  const round=Number(value);
+  if(Object.keys(S.roundTimers||{}).some(r=>Number(r)!==round && S.roundTimers[r].deadline>Date.now())){
+    alert('Pausa la ronda en curso antes de cambiar a otra.'); render(); return;
+  }
+  S.activeRound=round; save();
+}
+function renderPrimaryTimer(){
+  return `<section class="panel round-timer" aria-label="Temporizador de grupos">
+    <div><h2>Tiempo de la ronda</h2><label for="timer-round">Ambos grupos · cuatro tableros</label><select id="timer-round" onchange="timerRound(this.value)">${[0,1,2].map(r=>`<option value="${r}" ${r===(S.activeRound||0)?'selected':''}>Ronda ${r+1}</option>`).join('')}</select></div>
+    <div class="round-clock"><strong id="round-clock">20:00</strong><span id="round-clock-status" role="status"></span></div>
+    <div class="rowbtns"><button class="btn" id="timer-start" onclick="timerAction('start')">Iniciar</button><button class="btn ghost" id="timer-pause" onclick="timerAction('pause')">Pausar</button><button class="btn ghost" onclick="timerAction('reset')">Restablecer</button></div>
+    <p>Si terminan las cuatro partidas, avanza a la siguiente ronda sin esperar a que se agote el tiempo. El temporizador no registra resultados.</p>
+  </section>`;
+}
 function renderTabs(){
   document.getElementById('tabs').innerHTML = TABS.map(t=>
     `<button class="${tab===t.id?'active':''}" onclick="tab='${t.id}'; render()">${t.label}</button>`
   ).join('');
 }
-
 function renderSetupBanner(){
   const setup = getSetup();
   if(!setup.locked){
-    return `<div class="panel"><div class="warn">Todavía no hay una configuración guardada en la página 1. Los jugadores se mostrarán con nombres genéricos por color hasta que la completes y guardes ahí. <a href="config.html" style="color:inherit">Abrir configuración →</a></div></div>`;
+    return `<div class="panel"><div class="warn">Faltan los nombres de los jugadores. <a href="config.html" style="color:inherit">Abrir configuración →</a></div></div>`;
   }
   return '';
+}
+
+function renderGroupTable(g){
+  const games = S.groupGames[g];
+  return `
+  <div class="panel">
+    <h2>Grupo ${g} · 20 min por partida</h2>
+    <div class="sub">3 rondas · 2 tableros simultáneos.</div>
+    <table class="group-games">
+      <tr><th>Tablero</th><th>Blancas</th><th>Negras</th><th>Resultado</th></tr>
+      ${games.map((gm,i)=>`
+        ${i%2===0?`<tr class="round-row"><td colspan="4">Ronda ${i/2+1}</td></tr>`:''}
+        <tr>
+          <td class="mono">${(i%2)+1}</td>
+          <td>${chip(gm.white,MODE)}</td>
+          <td>${chip(gm.black,MODE)}</td>
+          <td>
+            <select onchange="onGroupResult('${g}', ${i}, this.value)">
+              <option value="">Sin jugar</option>
+              <option value="white" ${gm.result==='white'?'selected':''}>Ganan blancas</option>
+              <option value="black" ${gm.result==='black'?'selected':''}>Ganan negras</option>
+              <option value="draw" ${gm.result==='draw'?'selected':''}>Tablas</option>
+            </select>
+          </td>
+        </tr>
+      `).join('')}
+    </table>
+  </div>`;
 }
 
 function renderSorteo(){
   return renderSetupBanner() + `
   <div class="panel">
-    <h2>Sorteo de llaves</h2>
-    <div class="sub">Los dos primeros colores del sorteo aportan a la <b>Llave 1</b> a sus Participantes A, y a la <b>Llave 2</b> a sus Participantes B; los dos últimos colores hacen lo inverso. En cuartos se cruzan A contra B; los dos ganadores de cada llave definen, en semifinal, quién llega a la final. ${PRIMARIA_VARIANT_NOTE}</div>
+    <h2>Sorteo de grupos</h2>
+    <div class="sub">Primero de cada grupo → final.</div>
     <div class="grid4">
       ${[0,1,2,3].map(i=>`
         <div class="field">
           <label>Posición ${i+1} del sorteo</label>
-          <select ${P.bracket?'disabled':''} onchange="P.seedOrder[${i}]=this.value; setTimeout(render,0)">
+          <select ${S.groups?'disabled':''} onchange="S.seedOrder[${i}]=this.value; setTimeout(render,0)">
             <option value="">—</option>
-            ${COLORS.map(c=>`<option value="${c}" ${P.seedOrder[i]===c?'selected':''}>${COLOR_META[c].label}</option>`).join('')}
+            ${COLORS.map(c=>`<option value="${c}" ${S.seedOrder[i]===c?'selected':''}>${COLOR_META[c].label}</option>`).join('')}
           </select>
         </div>
       `).join('')}
     </div>
     <div class="rowbtns">
-      <button class="btn ghost" ${P.bracket?'disabled':''} onclick="shuffleSeedUI()">Sortear aleatoriamente</button>
-      <button class="btn" ${P.bracket?'disabled':''} onclick="confirmBracketUI()">Confirmar llaves ${!seedCompleteP(P)?'(completa las 4 posiciones)':''}</button>
-      ${P.bracket?`<button class="btn ghost" onclick="resetBracketUI()">Rehacer sorteo (borra resultados)</button>`:''}
+      <button class="btn ghost" ${S.groups?'disabled':''} onclick="shuffleSeedUI()">Sortear aleatoriamente</button>
+      <button class="btn" ${S.groups?'disabled':''} onclick="confirmGroupsUI()">Confirmar grupos ${!seedCompleteS(S)?'(completa las 4 posiciones)':''}</button>
+      ${S.groups?`<button class="btn ghost" onclick="resetGroupsUI()">Rehacer sorteo (borra resultados)</button>`:''}
     </div>
-    ${P.bracket?`
+    ${S.groups?`
       <div style="margin-top:16px;" class="grid4">
-        ${[['Llave 1','half1'],['Llave 2','half2']].map(([label,key])=>`
+        ${[['Grupo A','A'],['Grupo B','B']].map(([label,g])=>`
           <div class="colorcard" style="grid-column:span 2; --c:var(--gold)">
             <div class="name">${label}</div>
-            ${P.bracket[key].map(x=>`<div style="margin:5px 0">${chip(x.pid)}</div>`).join('')}
+            ${S.groups[g].map(x=>`<div style="margin:5px 0">${chip(x.pid,MODE)}</div>`).join('')}
           </div>
         `).join('')}
       </div>
     `:''}
   </div>`;
+}
+
+function renderGrupos(){
+  if(!S.groups) return `<div class="panel"><div class="warn">Primero confirma el sorteo de grupos en la pestaña «1 · Sorteo».</div></div>`;
+  return renderSetupBanner() + renderPrimaryTimer() + '<div class="group-columns">' + renderGroupTable('A') + renderGroupTable('B') + '</div>';
+}
+
+function renderStandingsTable(g){
+  const st = groupStatsS(S, g);
+  const order = groupOrderS(S, g);
+  const flags = unresolvedPairsS(S, order, g);
+  return `
+  <div class="panel">
+    <h2>Clasificación · Grupo ${g}</h2>
+    ${!groupCompleteS(S,g)?`<div class="warn">Aún faltan resultados por cargar en este grupo.</div>`:''}
+    <table class="standings-table">
+      <tr><th>Pos</th><th>Jugador</th><th class="num">Pts</th><th class="num">SB</th><th class="num">Vict.</th><th class="num">Penal.</th><th>Criterio</th><th></th></tr>
+      ${order.map((p,i)=>{
+        const decidedBy = i>0 ? tieBreakLabelS(S, g, order[i-1], p) : null;
+        return `
+        <tr>
+          <td class="pos">${i+1}º</td>
+          <td>${chip(p,MODE)}</td>
+          <td class="num mono">${st.points[p]}</td>
+          <td class="num mono">${st.sb[p]}</td>
+          <td class="num mono">${st.wins[p]}</td>
+          <td class="num mono">${penaltyOf(p,MODE)}</td>
+          <td>${decidedBy?`<span class="chip tie-criterion">↳ ${decidedBy}</span>`:''}</td>
+          <td>${i===0 && groupLeaderS(S,g)===p?'<span class="chip" style="border-color:var(--good);color:var(--good)">finalista</span>':''}</td>
+        </tr>`;
+      }).join('')}
+    </table>
+    ${flags.length? flags.map(([a,b])=>`
+      <div class="warn">
+        Empate total entre ${playerName(a,MODE)} y ${playerName(b,MODE)} tras todos los criterios. Corresponde prioridad al B efectivo: menor grado y, a igual grado, fecha de nacimiento más reciente. Indiquen quién cumple ese criterio; no se juega otra partida.
+        <div class="rowbtns">
+          <button class="btn small" onclick="onOverrideWinner('${a}','${b}')">B efectivo: ${playerName(a,MODE)}</button>
+          <button class="btn small" onclick="onOverrideWinner('${b}','${a}')">B efectivo: ${playerName(b,MODE)}</button>
+        </div>
+      </div>
+    `).join(''):''}
+  </div>`;
+}
+function renderCrossTiers(){
+  const oa=groupOrderS(S,'A'),ob=groupOrderS(S,'B');
+  return `<div class="panel"><h2>Puestos compartidos</h2>${[1,2,3].map((position,i)=>`
+    <div class="placement-tier"><b>${3+2*i}.º-${4+2*i}.º</b><div>${chip(oa[position],MODE)} ${chip(ob[position],MODE)}</div><span>${[4,2,1][i]} puntos por jugador</span></div>`).join('')}</div>`;
+}
+function renderClasif(){
+  if(!S.groups) return `<div class="panel"><div class="warn">Aún no hay grupos confirmados.</div></div>`;
+  return '<div class="group-columns">' + renderStandingsTable('A') + renderStandingsTable('B') + '</div>' + renderCrossTiers();
 }
 
 function renderArmageddon(key, match, maxSeconds){
@@ -153,7 +270,7 @@ function renderArmageddon(key, match, maxSeconds){
       <div class="note">Cada jugador escribe en secreto su tiempo en segundos, ambos papeles se entregan al árbitro a la vez. Quien pujó menos juega con negras (con ese tiempo) y gana en caso de tablas; quien pujó más juega con blancas con el tiempo máximo.</div>
       <div class="bidrow" style="margin-top:10px">
         <div class="bidfield">
-          <label class="bid-label">Puja de ${playerName(match.p1)}</label>
+          <label class="bid-label">Puja de ${playerName(match.p1,MODE)}</label>
           <div style="display:flex; gap:6px; align-items:center">
             <input type="number" min="0" max="${Math.floor(maxSeconds/60)}" placeholder="min" id="${key}_bid1_min" value="${A.bid1!=null?Math.floor(A.bid1/60):''}" class="bid-time">
             <span class="mono" style="color:var(--ink-muted)">:</span>
@@ -161,7 +278,7 @@ function renderArmageddon(key, match, maxSeconds){
           </div>
         </div>
         <div class="bidfield">
-          <label class="bid-label">Puja de ${playerName(match.p2)}</label>
+          <label class="bid-label">Puja de ${playerName(match.p2,MODE)}</label>
           <div style="display:flex; gap:6px; align-items:center">
             <input type="number" min="0" max="${Math.floor(maxSeconds/60)}" placeholder="min" id="${key}_bid2_min" value="${A.bid2!=null?Math.floor(A.bid2/60):''}" class="bid-time">
             <span class="mono" style="color:var(--ink-muted)">:</span>
@@ -181,23 +298,64 @@ function renderArmageddon(key, match, maxSeconds){
     <div class="arma-box">
       <h4>Armagedón — colores asignados</h4>
       <div class="vs">
-        <div class="side"><b>${chip(highP)}</b><br><span class="mono game-clock">Blancas · ${mmss(maxSeconds)}</span></div>
+        <div class="side"><b>${chip(highP,MODE)}</b><br><span class="mono game-clock">Blancas · ${mmss(maxSeconds)}</span></div>
         <div class="mid">vs</div>
-        <div class="side"><b>${chip(lowP)}</b><br><span class="mono game-clock">Negras · ${mmss(A.resolvedColors.blackSeconds)} · gana con tablas</span></div>
+        <div class="side"><b>${chip(lowP,MODE)}</b><br><span class="mono game-clock">Negras · ${mmss(A.resolvedColors.blackSeconds)} · gana con tablas</span></div>
       </div>
       ${!A.winnerPid?`
         <div class="note" style="margin-bottom:8px">Registrar resultado tras jugarse:</div>
         <div class="rowbtns">
-          <button class="btn small" onclick="armaSetWinner('${key}','${highP}')">Ganó ${playerName(highP)}</button>
-          <button class="btn small" onclick="armaSetWinner('${key}','${lowP}')">Ganó ${playerName(lowP)}</button>
+          <button class="btn small" onclick="armaSetWinner('${key}','${highP}')">Ganó ${playerName(highP,MODE)}</button>
+          <button class="btn small" onclick="armaSetWinner('${key}','${lowP}')">Ganó ${playerName(lowP,MODE)}</button>
         </div>
-      `:`<div class="chip" style="border-color:var(--good);color:var(--good)">Ganador: ${playerName(A.winnerPid)}</div>`}
+      `:`<div class="chip" style="border-color:var(--good);color:var(--good)">Ganador: ${playerName(A.winnerPid,MODE)}</div>`}
     </div>`;
 }
 
+function renderMatchCard(title, key, match, opts){
+  opts = opts||{};
+  const chooser=finalColorChooserS(S);
+  const choiceFor=white=>((chooser===match.p1)===white)?'p1-white':'p1-black';
+  const t = matchTallyS(match);
+  const winner = matchWinnerS(match);
+  const done = !!winner;
+  return `
+  <div class="matchcard">
+    <h3>${title}</h3>
+    ${!match.colorChoice?`
+      ${chooser ? `<div class="note" style="margin-bottom:10px">${playerName(chooser,MODE)} elige color por su mejor desempeño en grupos.</div>
+      <div class="rowbtns">
+        <button class="btn small" onclick="onChooseColor('${key}','${choiceFor(true)}')">${playerName(chooser,MODE)} juega con blancas</button>
+        <button class="btn small" onclick="onChooseColor('${key}','${choiceFor(false)}')">${playerName(chooser,MODE)} juega con negras</button>
+      </div>` : `<div class="warn">Empate total entre finalistas. Elige el B efectivo: menor grado; a igual grado, quien nació después. Indica quién cumple el criterio.</div><div class="rowbtns">${[match.p1,match.p2].map(p=>`<button class="btn small" onclick="S.colorChoiceOverride={'${p}':1};save()">B efectivo: ${playerName(p,MODE)}</button>`).join('')}</div>`}
+    `:`
+      <div class="vs">
+        <div class="side ${done&&winner===match.p1?'winner':''}">${chip(match.p1,MODE)}</div>
+        <div class="mid"><div class="score">${t.s1} – ${t.s2}</div></div>
+        <div class="side ${done&&winner===match.p2?'winner':''}">${chip(match.p2,MODE)}</div>
+      </div>
+      ${match.games.map((gm,i)=>{
+        const {white,black} = gameColorsS(match,i);
+        return `
+        <div class="gamerow">
+          <div class="label">Partida ${i+1}</div>
+          <div style="flex:1">${chip(white,MODE)} <span class="mono" style="color:var(--ink-muted)">vs</span> ${chip(black,MODE)}</div>
+          <select onchange="onSMatchResult('${key}', ${i}, this.value)">
+            <option value="">Sin jugar</option>
+            <option value="white" ${gm.result==='white'?'selected':''}>Ganan blancas</option>
+            <option value="black" ${gm.result==='black'?'selected':''}>Ganan negras</option>
+            <option value="draw" ${gm.result==='draw'?'selected':''}>Tablas</option>
+          </select>
+        </div>`;
+      }).join('')}
+      ${!done && needsArmageddonS(match) ? renderArmageddon(key, match, opts.maxSeconds) : ''}
+      ${done?`<div class="note" style="margin-top:8px">Campeón: <b>${playerName(winner,MODE)}</b></div>`:''}
+    `}
+  </div>`;
+}
 function renderProvisionalCard(title, prov){
   const side = (p) => p
-    ? `<div class="side winner">${chip(p)}</div>`
+    ? `<div class="side winner">${chip(p,MODE)}</div>`
     : `<div class="side"><span class="note" style="margin:0">Por definir</span></div>`;
   return `
   <div class="matchcard">
@@ -207,99 +365,33 @@ function renderProvisionalCard(title, prov){
       <div class="mid"><div class="score">–</div></div>
       ${side(prov?prov.p2:null)}
     </div>
-    <div class="note"></div>
+    <div class="note">Falta definir los líderes de grupo.</div>
   </div>`;
 }
 
-function renderPMatchCard(title, key, match){
-  if(!match) return `<div class="matchcard"><h3>${title}</h3><div class="note">Pendiente de que se definan ambos clasificados.</div></div>`;
-  if(match.whiteFirstIsP1==null) return `<div class="matchcard"><h3>${title}</h3><div class="note">Empieza con blancas quien curse menor grado; a igual grado, quien nació después.</div><div class="rowbtns">${[match.p1,match.p2].map((p,i)=>`<button class="btn small" onclick="onFirstWhite('${key}',${i===0})">Blancas: ${playerName(p)}</button>`).join('')}</div></div>`;
-  const t = pMatchTally(match);
-  const winner = pMatchWinner(match);
-  const done = !!winner;
-  const isFinal = match.roundType==='final';
-  const tiedAfterRematch = !isFinal && match.games.length===2 && t.played===2 && t.s1===t.s2;
-  return `
-  <div class="matchcard">
-    <h3>${title}</h3>
-    <div class="vs">
-      <div class="side ${done&&winner===match.p1?'winner':''}">${chip(match.p1)}</div>
-      <div class="mid"><div class="score">${t.s1} – ${t.s2}</div></div>
-      <div class="side ${done&&winner===match.p2?'winner':''}">${chip(match.p2)}</div>
-    </div>
-    ${match.games.map((gm,i)=>{
-      const {white,black} = pGameColors(match,i);
-      const label = isFinal ? ('Partida '+(i+1)) : (match.games.length>1 ? ('Partida '+(i+1)+' (revancha, col. invertidos)') : 'Partido único');
-      return `
-      <div class="gamerow">
-        <div class="label">${label}</div>
-        <div style="flex:1">${chip(white)} <span class="mono" style="color:var(--ink-muted)">vs</span> ${chip(black)}</div>
-        <select onchange="onResult('${key}', ${i}, this.value)">
-          <option value="">Sin jugar</option>
-          <option value="white" ${gm.result==='white'?'selected':''}>Ganan blancas</option>
-          <option value="black" ${gm.result==='black'?'selected':''}>Ganan negras</option>
-          ${!isFinal && i===1?`<option value="time-draw" ${gm.result==='time-draw'?'selected':''}>Tiempo agotado y material igual — avanza B efectivo</option>`:''}
-          <option value="draw" ${gm.result==='draw'?'selected':''}>Tablas</option>
-          ${!isFinal?`<option value="stalemate-white" ${gm.result==='stalemate-white'?'selected':''}>Blancas ahogadas — ganan negras</option><option value="stalemate-black" ${gm.result==='stalemate-black'?'selected':''}>Negras ahogadas — ganan blancas</option>`:''}
-        </select>
-      </div>`;
-    }).join('')}
-
-    ${pNeedsRematch(match)?`
-      <div class="warn">
-        Empate en el partido único. Se juega una segunda partida con los colores invertidos (partido doble de facto, ya balanceado):
-        <div class="rowbtns"><button class="btn small" onclick="onRematch('${key}')">Jugar la revancha</button></div>
-      </div>
-    `:''}
-
-    ${tiedAfterRematch && match.games[1].result!=='time-draw' && pConductWinner(match) ?`
-      <div class="note">Empate 1–1 tras la revancha. Decide la conducta — penalizaciones: <b>${playerName(match.p1)}</b> ${penaltyOf(match.p1)} · <b>${playerName(match.p2)}</b> ${penaltyOf(match.p2)}. Avanza quien tiene menos.</div>
-    `:''}
-
-    ${tiedAfterRematch && match.games[1].result!=='time-draw' && !pConductWinner(match)?`<div class="note">Empate 1–1 y en conducta: avanza ${playerName(pGameColors(match,0).white)}, quien inició con blancas.</div>`:''}
-
-    ${!isFinal && match.games[1]?.result==='time-draw'?`<div class="note">Material igual al agotar el tiempo de la revancha: avanza el B efectivo, quien inició con blancas.</div>`:''}
-    ${pFinalNeedsArmageddon(match) ? renderArmageddon(key, match, ARMAGEDDON_MAX_SECONDS) : ''}
-
-    ${done?`<div class="note" style="margin-top:8px">Avanza: <b>${playerName(winner)}</b></div>`:''}
-  </div>`;
-}
-
-function renderLlaves(){
-  if(!P.bracket) return `<div class="panel"><div class="warn">Primero confirma el sorteo de llaves en la pestaña «1 · Sorteo de llaves».</div></div>`;
-  const M = P.matches;
-  let html = `<div class="panel"><h2>Cuartos de final</h2><div class="note">En cuartos y semifinales, el jugador con rey ahogado pierde. En la final es tablas.</div><div class="sub">B empieza con blancas contra A. Tablas → revancha con piezas invertidas → conducta → quien inició con blancas.</div></div>`;
-  html += renderPMatchCard('Cuarto de final · Llave 1 · A1 vs B1', 'QF.h1a', M.QF.h1a);
-  html += renderPMatchCard('Cuarto de final · Llave 1 · A2 vs B2', 'QF.h1b', M.QF.h1b);
-  html += renderPMatchCard('Cuarto de final · Llave 2 · A1 vs B1', 'QF.h2a', M.QF.h2a);
-  html += renderPMatchCard('Cuarto de final · Llave 2 · A2 vs B2', 'QF.h2b', M.QF.h2b);
-
-  html += `<div class="panel"><h2>Semifinales</h2><div class="sub">Partido único. Tablas → revancha con piezas invertidas → conducta → quien inició con blancas.</div></div>`;
-  html += M.SF.h1 ? renderPMatchCard('Semifinal · Llave 1', 'SF.h1', M.SF.h1) : renderProvisionalCard('Semifinal · Llave 1', pProvisionalSF(P,'h1'));
-  html += M.SF.h2 ? renderPMatchCard('Semifinal · Llave 2', 'SF.h2', M.SF.h2) : renderProvisionalCard('Semifinal · Llave 2', pProvisionalSF(P,'h2'));
-
-  html += `<div class="panel"><h2>Final</h2><div class="sub">Dos partidas, una con cada color. Empate 1–1 → Armagedón directo (puja hasta 15 minutos).</div></div>`;
-  html += M.FINAL ? renderPMatchCard('Gran Final', 'FINAL', M.FINAL) : renderProvisionalCard('Gran Final', pProvisionalFinal(P));
-  return html;
+function renderFinal(){
+  const rules='<div class="panel"><h2>Final · 1.º Grupo A vs 1.º Grupo B</h2><div class="sub">Dos partidas de 15+0, alternando piezas. Empate 1-1 → Armagedón directo (puja hasta 15 minutos).</div><div class="note">Hasta 60 minutos de juego; con Armagedón, hasta 90, sin pausas ni pujas. Un organizador supervisa el reloj y lo pulsa si los niños se olvidan.</div></div>';
+  if(!S.final) return rules+renderProvisionalCard('Gran Final',provisionalFinalS(S));
+  return rules+renderMatchCard('Gran Final','FINAL',S.final,{maxSeconds:ARMAGEDDON_MAX_SECONDS});
 }
 
 function renderPuntos(){
-  const placements = computePlacementsPrimaria(P);
-  if(!placements || Object.keys(placements).length===0) return `<div class="panel"><div class="warn">Completa al menos un cuarto de final para ver el reparto de puntos.</div></div>`;
+  const placements = computePlacementsS(S);
+  if(!placements) return `<div class="panel"><div class="warn">Completa al menos la fase de grupos para ver el reparto de puntos.</div></div>`;
   const rows = Object.entries(placements).sort((a,b)=>a[1]-b[1]);
   const colorTotals = Object.fromEntries(COLORS.map(c=>[c,0]));
-  rows.forEach(([p,place])=>{ colorTotals[pidColor(p)] += PLACE_POINTS_PRIMARIA[place]||0; });
-  const weight = modalityWeight('primaria');
-  COLORS.forEach(c=>{ colorTotals[c] = scaledPoints(colorTotals[c], 'primaria'); });
+  rows.forEach(([p,place])=>{ colorTotals[pidColor(p)] += PLACE_POINTS_SECUNDARIA[place]||0; });
+  const weight = modalityWeight(MODE);
+  COLORS.forEach(c=>{ colorTotals[c] = scaledPoints(colorTotals[c], MODE); });
   const maxTotal = Math.max(1,...Object.values(colorTotals));
   const colorRanked = COLORS.slice().sort((a,b)=>colorTotals[b]-colorTotals[a]);
   return `<div class="group-columns">
   <div class="panel">
     <h2>Puestos y puntos</h2>
-    <div class="sub"></div>
+    <div class="sub">${!S.final?'Los puestos 1º–2º son provisionales hasta jugar la final.':(!matchWinnerS(S.final)?'Los puestos 1º–2º son provisionales hasta terminar la final.':'')}</div>
     <table class="pts-table">
       <tr><th>Puesto</th><th>Jugador</th><th class="num">Puntos</th></tr>
-      ${placementTiersP(P).map(t=>`<tr><td class="pos">${placementLabelP(t.place)}</td><td>${t.players.map(p=>chip(p)).join(' ')}</td><td class="num mono">${PLACE_POINTS_PRIMARIA[t.place]}${t.players.length>1?' cada uno':''}</td></tr>`).join('')}
+      ${placementTiersS(S).map(t=>`<tr><td class="pos">${placementLabelS(t.place)}</td><td>${t.players.map(p=>chip(p,MODE)).join(' ')}</td><td class="num mono">${PLACE_POINTS_SECUNDARIA[t.place]}${t.players.length>1?' cada uno':''}</td></tr>`).join('')}
 
     </table>
   </div>
@@ -318,16 +410,32 @@ function renderPuntos(){
 }
 
 function render(){
+  if(!TABS.some(t=>t.id===tab)) tab='sorteo';
+  localStorage.setItem(TAB_KEY,tab);
   renderTabs();
-  const view = tab==='sorteo'?renderSorteo() : tab==='llaves'?renderLlaves() : renderPuntos();
-  document.getElementById('app').innerHTML = view;
+  const map = {sorteo:renderSorteo, grupos:renderGrupos, clasif:renderClasif, final:renderFinal, puntos:renderPuntos};
+  document.getElementById('app').innerHTML = (map[tab]||map.sorteo)();
+  updatePrimaryClock();
 }
 
 onLiveUpdate((key)=>{
-  if(key===LS_KEYS.primaria){ P = getPrimaria(); }
+  if(key===LS_KEYS[MODE] || key===LS_KEYS.setup){ S=getPrimaria(); autoAdvanceS(S); if(key===LS_KEYS.setup) saveSecundaria(S); }
   render();
 });
 
+function updatePrimaryClock(){
+  const clock=document.getElementById('round-clock');
+  if(!clock) return;
+  const remaining=primaryRemaining(S),seconds=Math.ceil(remaining/1000),timer=primaryTimer(S);
+  clock.textContent=`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;
+  clock.classList.toggle('expired',remaining===0);
+  const status=document.getElementById('round-clock-status');
+  const phase=remaining===0?'Tiempo cumplido · congelar tableros':timer.deadline!=null?'En curso':timer.started?'En pausa':'Sin iniciar';
+  status.textContent=`Ronda ${(S.activeRound||0)+1} · ${phase}`;
+  const start=document.getElementById('timer-start'),pause=document.getElementById('timer-pause');
+  if(start){start.textContent=timer.started?'Reanudar':'Iniciar';start.disabled=timer.deadline!=null||remaining===0;pause.disabled=timer.deadline==null||remaining===0;}
+}
+setInterval(updatePrimaryClock,250);
 render();
 </script>
 

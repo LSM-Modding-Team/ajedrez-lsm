@@ -370,3 +370,13 @@ nav.tabs button{background:#151a1e}
 .page-control .clock-help summary{font-weight:700;cursor:pointer}
 .page-control .clock-help p{max-width:100ch;color:var(--ink-muted)}
 @media(max-width:800px){.page-control .clock-help{margin-inline:22px}}
+
+/* Primaria: reloj común de la ronda, sin relojes individuales. */
+.round-timer{display:flex;align-items:center;gap:24px;flex-wrap:wrap;border-left:3px solid var(--gold)}
+.round-timer h2{margin-bottom:8px}.round-timer label{display:block;color:var(--ink-muted);font-size:13px;margin-bottom:8px}
+.round-timer select{width:180px}.round-timer .rowbtns{margin:0}.round-timer>p{flex-basis:100%;margin:0;color:var(--ink-muted);font-size:14px}
+.round-clock{min-width:220px;display:flex;flex-direction:column;gap:8px;margin-right:auto}.round-clock strong{font-size:clamp(46px,5vw,72px);line-height:1;font-variant-numeric:tabular-nums;color:var(--gold)}
+.round-clock span{font-size:13px;color:var(--ink-muted)}.round-clock .expired,.public-round-clock .expired{color:#ef978f}
+.public-round-clock{display:flex;align-items:center;gap:18px}.public-round-clock[hidden]{display:none}.public-round-clock span{font-size:14px;color:var(--ink-muted)}.public-round-clock strong{font-size:32px;line-height:1;font-variant-numeric:tabular-nums;color:var(--gold)}
+.page-publico-secundaria .top:has(.public-round-clock){display:flex;justify-content:space-between;align-items:center;gap:16px}
+@media(max-width:620px){.round-timer{gap:18px}.round-clock{min-width:0}.round-timer .rowbtns{width:100%}.public-round-clock{gap:10px;flex-direction:column;align-items:flex-end}.public-round-clock span{font-size:11px;max-width:140px;text-align:right}.public-round-clock strong{font-size:25px}}

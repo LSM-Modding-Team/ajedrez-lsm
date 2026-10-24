@@ -4,40 +4,66 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Olimpiadas de ajedrez — Primaria</title>
-<link rel="stylesheet" href="style.css?v=ecfa4e0114fe">
+<link rel="stylesheet" href="style.css?v=7bffda414e56">
 </head>
-<body class="page-publico-primaria">
+<body class="page-publico-secundaria">
 <div class="sitebar"><a class="event-brand" href="index.html" aria-label="Olimpiadas escolares, inicio"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 7h5v5h5V7h5v5h5V7h5v12h-4l-2 12h6v4H8v-4h6l-2-12H8Z" fill="currentColor"/></svg><span>OLIMPIADAS<span>ESCOLARES / AJEDREZ</span></span></a><nav aria-label="Navegación principal"><a href="index.html">Torneos</a><a href="config.html">Configuración</a><a href="manual.html">Guía del árbitro</a></nav></div>
 
 <header class="top">
-  <h1>Primaria</h1><p>Cuartos y semifinales: el jugador con rey ahogado pierde. Final: el ahogado es tablas.</p>
+  <h1>Primaria</h1><div class="public-round-clock" id="public-round-clock"><span id="round-clock-status"></span><strong id="round-clock">20:00</strong></div>
 </header>
 
 
 <main class="wide" id="app"></main>
 
-<script src="reglas-cefe377693c8.js"></script>
+<script src="reglas-fc1ea596cc3d.js"></script>
 <script>
-let P = getPrimaria();
+const MODE='primaria';
+const CATEGORY=modalityMeta(MODE);
+document.title=document.title.replace('Secundaria',CATEGORY.label);
+document.querySelector('h1').textContent=document.querySelector('h1').textContent.replace('Secundaria',CATEGORY.label);
 
-function nameShort(p){ return playerName(p); }
+let S = getPrimaria();
+function nameShort(p){ return playerName(p,MODE); }
 
-function bktPlayerRow(slot, whichP){
+function renderStandings(g){
+  const st = groupStatsS(S, g);
+  const order = groupOrderS(S, g);
+  return `
+  <div class="panel">
+    <div class="group-heading"><h2>Grupo ${g}</h2>
+    ${!groupCompleteS(S,g)?`<div class="note">En curso.</div>`:''}
+    </div>
+    <table>
+      <tr><th>Pos</th><th>Jugador</th><th class="num">Pts</th><th class="num">SB</th><th class="num">Vict.</th><th>Criterio</th><th></th></tr>
+      ${order.map((p,i)=>{
+        const decidedBy = i>0 ? tieBreakLabelS(S, g, order[i-1], p) : null;
+        return `
+        <tr>
+          <td class="pos">${i+1}º</td>
+          <td>${chip(p,MODE)}</td>
+          <td class="num mono">${st.points[p]}</td>
+          <td class="num mono">${st.sb[p]}</td>
+          <td class="num mono">${st.wins[p]}</td>
+          <td>${decidedBy?`<span class="chip" style="font-size:11px">↳ ${decidedBy}</span>`:''}</td>
+          <td>${i===0 && groupLeaderS(S,g)===p?'<span class="chip" style="border-color:var(--good);color:var(--good)">finalista</span>':''}</td>
+        </tr>`;
+      }).join('')}
+    </table>
+  </div>`;
+}
+
+function bktPlayerRowS(slot, whichP){
   if(!slot) return `<div class="bkt-player"><div class="who"><span class="dot" style="--c:var(--line)"></span><span class="name" style="color:var(--ink-muted)">Por definir</span></div><div class="sc">–</div></div>`;
   const p = whichP===1?slot.p1:slot.p2;
   if(!p) return `<div class="bkt-player"><div class="who"><span class="dot" style="--c:var(--line)"></span><span class="name" style="color:var(--ink-muted)">Por definir</span></div><div class="sc">–</div></div>`;
   const c = pidColor(p);
-  if(slot.provisional){
-    // Ya se sabe quién ocupa este lado, pero el cruce completo todavía no existe como partido.
-    return `
-      <div class="bkt-player adv">
-        <div class="who"><span class="dot" style="--c:${COLOR_META[c].hex}"></span><span class="name">${nameShort(p)}</span></div>
-        <div class="sc">–</div>
-      </div>`;
+  if(slot.provisional || !slot.colorChoice){
+    return `<div class="bkt-player adv"><div class="who"><span class="dot" style="--c:${COLOR_META[c].hex}"></span><span class="name">${nameShort(p)}</span></div><div class="sc">–</div></div>`;
   }
-  const t = pMatchTally(slot);
+  const t = matchTallyS(slot);
   const sc = whichP===1?t.s1:t.s2;
-  const winner = pMatchWinner(slot);
+  const winner = matchWinnerS(slot);
   const adv = winner && winner===p;
   return `
     <div class="bkt-player ${adv?'adv':''}">
@@ -45,43 +71,41 @@ function bktPlayerRow(slot, whichP){
       <div class="sc">${sc}</div>
     </div>`;
 }
-
-function bktMeta(slot){
+function bktMetaS(slot){
   if(!slot) return `<div class="bkt-meta">Sin definir</div>`;
-  if(!slot.provisional && slot.whiteFirstIsP1==null) return `<div class="bkt-meta">Falta asignar blancas por grado y fecha de nacimiento</div>`;
-  if(slot.provisional) return `<div class="bkt-meta">Pendiente del otro cruce</div>`;
-  if(pNeedsRematch(slot)) return `<div class="bkt-meta">Empate — se juega la revancha</div>`;
-  if(pFinalNeedsArmageddon(slot)) return `<div class="bkt-meta">Empate 1–1 — Armagedón en curso</div>`;
-  const winner = pMatchWinner(slot);
+  if(slot.provisional) return `<div class="bkt-meta">Pendiente de completar grupos</div>`;
+  if(!slot.colorChoice) return `<div class="bkt-meta">Falta elegir color</div>`;
+  if(!matchWinnerS(slot) && needsArmageddonS(slot)) return `<div class="bkt-meta">Empate — Armagedón en curso</div>`;
+  const winner = matchWinnerS(slot);
   if(winner) return `<div class="bkt-meta">Definido</div>`;
-  const t = pMatchTally(slot);
+  const t = matchTallyS(slot);
   if(t.played>0) return `<div class="bkt-meta">En curso</div>`;
   return `<div class="bkt-meta">Sin jugar</div>`;
 }
-
-function bktBox(id, slot){
-  const decided = slot && !slot.provisional && !!pMatchWinner(slot);
+function bktBoxS(id, slot){
+  const decided = slot && !slot.provisional && slot.colorChoice && !!matchWinnerS(slot);
   return `<div class="bkt-box ${!slot?'empty':''} ${decided?'decided':''}" id="${id}">
-    ${bktPlayerRow(slot,1)}
-    ${bktPlayerRow(slot,2)}
-    ${bktMeta(slot)}
+    ${bktPlayerRowS(slot,1)}
+    ${bktPlayerRowS(slot,2)}
+    ${bktMetaS(slot)}
   </div>`;
 }
 
-function renderColorPoints(P){
-  const placements = computePlacementsPrimaria(P);
+function renderColorPoints(){
+  const placements = computePlacementsS(S);
   const colorTotals = Object.fromEntries(COLORS.map(c=>[c,0]));
   if(placements){
-    Object.entries(placements).forEach(([p,place])=>{ colorTotals[pidColor(p)] += PLACE_POINTS_PRIMARIA[place]||0; });
+    Object.entries(placements).forEach(([p,place])=>{ colorTotals[pidColor(p)] += PLACE_POINTS_SECUNDARIA[place]||0; });
   }
-  const weight = modalityWeight('primaria');
-  COLORS.forEach(c=>{ colorTotals[c] = scaledPoints(colorTotals[c], 'primaria'); });
+  const weight = modalityWeight(MODE);
+  COLORS.forEach(c=>{ colorTotals[c] = scaledPoints(colorTotals[c], MODE); });
   const hasAny = placements && Object.keys(placements).length>0;
   const maxTotal = Math.max(1,...Object.values(colorTotals));
   const colorRanked = COLORS.slice().sort((a,b)=>colorTotals[b]-colorTotals[a]);
   return `
   <div class="panel">
-    <h2>Puntaje final por color</h2>
+    <h2>Puntaje por color</h2>
+    ${hasAny && !(S.final && matchWinnerS(S.final)) ? `<div class="note">Provisional: falta resolver la final.</div>` : ''}
     ${!hasAny ? `<div class="note">Aún no hay resultados.</div>` : colorRanked.map((c,i)=>`
       <div class="final-standing">
         <div class="rank">${i+1}º</div>
@@ -94,53 +118,32 @@ function renderColorPoints(P){
 }
 
 function render(){
-  if(!P.bracket){
-    document.getElementById('app').innerHTML = `<div class="panel"><div class="warn">El sorteo de llaves todavía no se ha confirmado desde el panel del árbitro.</div></div>`;
+  document.getElementById('public-round-clock').hidden=!S.groups || !!S.final;
+  updatePrimaryClock();
+  if(!S.groups){
+    document.getElementById('app').innerHTML = `<div class="panel"><div class="warn">El sorteo de grupos todavía no se ha confirmado desde el panel del árbitro.</div></div>`;
     return;
   }
-  const M = P.matches;
-  const sfSlot = half => M.SF[half] || pProvisionalSF(P, half);
-  const finalSlot = M.FINAL || pProvisionalFinal(P);
-  const champion = M.FINAL ? pMatchWinner(M.FINAL) : null;
+  const finalSlot = S.final || provisionalFinalS(S);
+  const champion = S.final ? matchWinnerS(S.final) : null;
 
   document.getElementById('app').innerHTML = `
+  <div class="group-columns">
+    ${renderStandings('A')}
+    ${renderStandings('B')}
+  </div>
+
   <div class="public-layout">
     <div class="bracket-wrap" id="bracketWrap">
       <div class="bracket">
-        <div class="bracket-col">
-          <div class="bracket-half">
-            <div>
-              <div class="bkt-roundlabel">Cuartos · Llave 1</div>
-              ${bktBox('mb-qf-h1a', M.QF.h1a)}
-            </div>
-            <div>${bktBox('mb-qf-h1b', M.QF.h1b)}</div>
-          </div>
-          <div class="bracket-half">
-            <div>
-              <div class="bkt-roundlabel">Cuartos · Llave 2</div>
-              ${bktBox('mb-qf-h2a', M.QF.h2a)}
-            </div>
-            <div>${bktBox('mb-qf-h2b', M.QF.h2b)}</div>
-          </div>
-        </div>
-        <div class="bracket-col">
-          <div>
-            <div class="bkt-roundlabel">Semifinal 1</div>
-            ${bktBox('mb-sf-h1', sfSlot('h1'))}
-          </div>
-          <div>
-            <div class="bkt-roundlabel">Semifinal 2</div>
-            ${bktBox('mb-sf-h2', sfSlot('h2'))}
-          </div>
-        </div>
         <div class="bracket-col col-final">
           <div>
-            <div class="bkt-roundlabel">Gran Final</div>
-            ${bktBox('mb-final', finalSlot)}
+            <div class="bkt-roundlabel">Final · 1.º A vs 1.º B · 15+0</div>
+            ${bktBoxS('mb-final', finalSlot)}
           </div>
         </div>
       </div>
-      <svg class="bracket-svg" id="bracketSvg"></svg>
+      
     </div>
     <div class="public-sidebar">
       ${champion ? `
@@ -154,54 +157,31 @@ function render(){
           <div><div class="label">Campeón</div><div class="name">Aún sin definir</div></div>
         </div>
       `}
-      ${renderColorPoints(P)}
+      ${renderColorPoints()}
     </div>
   </div>
   `;
-  requestAnimationFrame(drawConnectors);
-}
 
-function drawConnectors(){
-  const wrap = document.getElementById('bracketWrap');
-  const svg = document.getElementById('bracketSvg');
-  if(!wrap || !svg) return;
-  const wrapRect = wrap.getBoundingClientRect();
-  svg.setAttribute('width', wrap.scrollWidth);
-  svg.setAttribute('height', wrap.scrollHeight);
-  svg.innerHTML = '';
-
-  function pt(id, side){
-    const el = document.getElementById(id);
-    if(!el) return null;
-    const r = el.getBoundingClientRect();
-    const x = side==='right' ? (r.right - wrapRect.left + wrap.scrollLeft) : (r.left - wrapRect.left + wrap.scrollLeft);
-    const y = r.top + r.height/2 - wrapRect.top + wrap.scrollTop;
-    return {x,y};
-  }
-  function addPath(fromId, toId, lit){
-    const from = pt(fromId,'right'), to = pt(toId,'left');
-    if(!from || !to) return;
-    const midX = (from.x + to.x)/2;
-    const d = `M ${from.x} ${from.y} H ${midX} V ${to.y} H ${to.x}`;
-    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('d', d);
-    path.setAttribute('class', 'connector'+(lit?' lit':''));
-    svg.appendChild(path);
-  }
-  const M = P.matches;
-  addPath('mb-qf-h1a','mb-sf-h1', !!pMatchWinner(M.QF.h1a));
-  addPath('mb-qf-h1b','mb-sf-h1', !!pMatchWinner(M.QF.h1b));
-  addPath('mb-qf-h2a','mb-sf-h2', !!pMatchWinner(M.QF.h2a));
-  addPath('mb-qf-h2b','mb-sf-h2', !!pMatchWinner(M.QF.h2b));
-  addPath('mb-sf-h1','mb-final', M.SF.h1 ? !!pMatchWinner(M.SF.h1) : false);
-  addPath('mb-sf-h2','mb-final', M.SF.h2 ? !!pMatchWinner(M.SF.h2) : false);
 }
 
 onLiveUpdate((key)=>{
-  if(key===LS_KEYS.primaria || key===LS_KEYS.setup){ P = getPrimaria(); render(); }
+  if(key===LS_KEYS[MODE] || key===LS_KEYS.setup){ S = getPrimaria(); render(); }
 });
-window.addEventListener('resize', ()=>requestAnimationFrame(drawConnectors));
 
+
+function updatePrimaryClock(){
+  const clock=document.getElementById('round-clock');
+  if(!clock) return;
+  const remaining=primaryRemaining(S),seconds=Math.ceil(remaining/1000),timer=primaryTimer(S);
+  clock.textContent=`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;
+  clock.classList.toggle('expired',remaining===0);
+  const status=document.getElementById('round-clock-status');
+  const phase=remaining===0?'Tiempo cumplido · congelar tableros':timer.deadline!=null?'En curso':timer.started?'En pausa':'Sin iniciar';
+  status.textContent=`Ronda ${(S.activeRound||0)+1} · ${phase}`;
+  const start=document.getElementById('timer-start'),pause=document.getElementById('timer-pause');
+  if(start){start.textContent=timer.started?'Reanudar':'Iniciar';start.disabled=timer.deadline!=null||remaining===0;pause.disabled=timer.deadline==null||remaining===0;}
+}
+setInterval(updatePrimaryClock,250);
 render();
 </script>
 

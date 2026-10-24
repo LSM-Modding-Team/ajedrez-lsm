@@ -1,152 +1,126 @@
-# Olimpiadas de ajedrez - formato actualizado
+# Olimpiadas de ajedrez
 
-Tres torneos independientes: **primaria**, **secundaria baja (1.º y 2.º)** y
-**secundaria alta (3.º, 4.º y 5.º)**. Cada color inscribe dos jugadores por categoría.
+Tres torneos independientes: primaria (1.º a 6.º), secundaria baja (1.º y 2.º)
+y secundaria alta (3.º a 5.º). Cuatro colores, dos estudiantes por color y categoría.
 
-## Abrir la aplicación
+## Uso
 
-Extrae todos los archivos juntos. En esa carpeta, ejecuta:
+Abre el sitio publicado o sirve esta carpeta con `python -m http.server 8000`.
+No necesita compilación ni backend. Configuración, árbitro y resultados deben
+abrirse en el mismo navegador, perfil, computadora y origen. Los datos se guardan
+localmente y las pestañas se actualizan entre sí; no sincronizan entre equipos.
+Evita el modo privado y no borres los datos del navegador.
 
-```bash
-python -m http.server 8000
-```
+El manual visual está integrado en `manual.html`. La propuesta imprimible es
+`Propuesta_Reestructuracion_Olimpiadas_Ajedrez.pdf`.
 
-Abre **http://localhost:8000/index.html**. El índice enlaza la configuración,
-los tres paneles de árbitro y sus pantallas públicas. No requiere compilación ni
-backend. Python solo sirve los archivos por HTTP.
+## Preparación
 
-Todos los paneles deben abrirse en **el mismo navegador y la misma computadora**.
-Los datos se guardan en ese navegador y las pestañas se actualizan solas.
-No hay sincronización entre equipos. Cambiar de navegador, puerto, perfil u origen
-abre otro almacenamiento; no uses modo privado ni borres los datos del navegador.
+- Registra los 24 nombres en Configuración. A es mayor grado; a igual grado,
+  fecha de nacimiento más antigua. B es el otro; no representa habilidad.
+- Conducta se registra una vez por color y se comparte entre categorías.
+- Cada categoría tiene su propio multiplicador olímpico. Guarda antes de iniciar.
+- Cada panel recuerda su última pestaña. Baja y alta conservan sus fases por separado.
 
-## Participantes y configuración
+## Formato común
 
-- Hay cuatro colores: rojo, azul, verde y amarillo.
-- **A = mayor grado; si coinciden en grado, fecha de nacimiento más antigua. B = el otro jugador.**
-  Aplica a las tres categorías. No se clasifican por habilidad ajedrecística.
-- Registra manualmente los nombres en las casillas A/B correspondientes.
-- Nombres, multiplicadores, sorteos y resultados se separan por categoría.
-- Las penalizaciones de conducta se registran una sola vez por color y se comparten.
-- Guarda Configuración antes de iniciar. Para corregirla, desbloquea y vuelve a guardar.
+Dos grupos de cuatro, todos contra todos. Tres rondas, dos tableros por grupo:
+cuatro tableros permiten jugar ambos grupos a la vez. Los primeros dos colores
+del sorteo aportan sus A al Grupo A y B al Grupo B; los otros dos hacen lo inverso.
+A juega dos veces con negras y una con blancas; B, al revés.
+
+Victoria 2, tablas 1, derrota 0. Desempates: mini-clasificación, enfrentamiento
+directo al reducirse a dos (tablas favorecen a negras), SB, victorias, menos
+penalizaciones y prioridad B. Entre jugadores del mismo rol, B efectivo es menor
+grado y luego fecha de nacimiento más reciente; el árbitro registra quién lo es.
+No se juegan partidas adicionales de grupo.
+
+Solo los líderes pasan a una final de dos partidas 15+0 por jugador, alternando
+piezas. Elige color inicial quien tenga mejor desempeño en grupos: puntos, SB,
+victorias, conducta y B/B efectivo; sin enfrentamiento directo entre grupos.
+Empate 1-1, incluidas dos tablas: Armagedón directo. No hay semifinales ni tercer puesto.
+
+Armagedón: puja secreta de 0 a 15 minutos, precisión de un segundo, sin incremento.
+La puja menor obtiene negras con ese tiempo y gana con tablas. Blancas recibe
+15 minutos y debe ganar. Pujas iguales se repiten; tras tres, se habilita sorteo.
 
 ## Primaria
 
-Eliminación directa con cuartos A contra B, siempre de colores distintos:
+Grupos sin reloj por jugador: 20 minutos por partida. El panel incluye un
+temporizador común por ronda con iniciar, pausar, reanudar y restablecer.
+El plazo se conserva al recargar o cambiar de pestaña; resultados lo muestra
+mientras se juegan los grupos. No decide ni registra resultados automáticamente.
+Una sola ronda puede correr a la vez.
 
-- Cuartos y semifinales: partido único; tablas → revancha con piezas invertidas;
-  empate persistente → conducta → quien inició con blancas.
-- Final: dos partidas; empate 1-1 → Armagedón directo por puja
-  ciega con máximo de 15 minutos.
-- Puntos por puesto: **8, 4, 2, 2, 1, 1, 1, 1**. Total base: **20**.
+Al cumplirse el límite se congela el tablero. Victoria con más de un punto de
+ventaja material (al menos 2); con uno o igualdad, tablas. Peón 1, caballo 3,
+alfil 3, torre 5, dama 9; el rey no puntúa. Solo excepcionalmente el árbitro puede
+permitir una recaptura si cortar ahí falsea un intercambio o captura de último
+segundo. No se espera automáticamente dos medios-movimientos ni a que aparezca ventaja.
 
-## Cada secundaria
+Pieza soltada, pieza movida en toda primaria, también final y Armagedón.
+Ahogado siempre es tablas. No hay revanchas. La final usa reloj individual:
+un organizador aporta el celular, supervisa y pulsa si los niños se olvidan.
+No se permite aprovechar esos olvidos. Allí no rige el límite compartido ni
+la evaluación de material de los grupos.
 
-- Dos grupos de cuatro; seis partidas por grupo, tres por jugador.
-- Se conserva el sorteo: primeros dos colores aportan sus A al Grupo A y B al
-  Grupo B; últimos dos colores hacen lo inverso.
-- A juega dos con negras y una con blancas; B, al revés.
-- Tres rondas por grupo, dos tableros simultáneos por ronda. Ritmo **5+0**.
-- Puntuación de grupo conservada: victoria 2, tablas 1, derrota 0.
-- Se conserva el motor anterior de desempates: mini-clasificación entre empatados;
-  enfrentamiento directo al reducirse a dos (tablas favorecen a negras en el
-  código original); SB; victorias; conducta; B o B efectivo como último criterio.
-- **Solo el líder de cada grupo avanza. Sin semifinales.** La final se genera
-  cuando ambos grupos están completos y sus líderes están definidos.
-- Final: **dos partidas 15+0**, alternando piezas. Empate 1-1 (incluidas dos
-  tablas) → **Armagedón directo**, sin dos partidas adicionales.
-- Armagedón: puja secreta de 0 a 15 minutos, en pasos de un segundo; **sin
-  incremento por jugada**. La puja menor lleva negras con ese tiempo y gana
-  con tablas; blancas tiene 15 minutos y debe ganar. Pujas iguales se repiten;
-  tras tres coincidencias se habilita sorteo de piezas como último recurso.
-- Campeón **20**, subcampeón **12**; segundos de grupo **4** cada uno,
-  terceros **2** cada uno, cuartos **1** cada uno. Total base: **46**.
-- Puestos compartidos en tres pares: 3.º-4.º, 5.º-6.º y 7.º-8.º. No hay
-  posiciones individuales ni desempates dentro de esos pares.
+## Secundaria
 
-## Puntos proporcionales
+Grupos 5+0, final 15+0. Cada estudiante lleva celular exclusivamente como reloj
+con Chess Clock de Chess.com. Basta uno por tablero; pedir todos aporta respaldo.
+Comprobar batería, pausa, edición del tiempo y ausencia de incremento. Si se apaga,
+volver a encenderlo.
 
-**Puntos del color = suma de sus dos jugadores × ajuste de reparto × multiplicador olímpico.**
+Una jugada cuenta al pulsar el reloj; no rige pieza tocada. Es legal esperar si
+el rival movió pero olvidó pulsar: anunciar esta estrategia. Tras dos
+medios-movimientos sin pulsaciones, el árbitro puede pausar, advertir y reanudar
+el reloj de quien debe mover. Ante una ilegal ya completada, el afectado pausa y
+llama al árbitro; si la confirma, este le añade 30 segundos y reanuda. Solo el
+árbitro modifica el reloj.
 
-El ajuste fijo es **×2.3 en primaria** y **×1 en cada secundaria**:
-20 × 2.3 = 46. Compensa el reparto de puntos, sin aumentar la importancia de
-primaria. Después se aplica el multiplicador configurable de cada categoría
-para adaptar su resultado a la escala de las olimpiadas. Se conservan los decimales;
-no se truncan los puntos al multiplicar.
+## Puestos y puntos
 
-Los puntajes son provisionales mientras falte terminar el torneo. Antes de
-resolver la final, cada finalista figura provisionalmente con el valor de subcampeón.
+Las tres categorías reparten 46 puntos base:
 
-## Tiempos de secundaria
-
-Por categoría, con cuatro tableros y ambos grupos en paralelo:
-
-| Etapa | Tiempo máximo de juego |
+| Puesto | Puntos |
 | --- | ---: |
-| Grupos (3 rondas de 5+0) | 30 min |
-| Final (dos partidas de 15+0) | 60 min |
-| Armagedón, si hace falta | 30 min |
-| Total de estas partidas | 120 min |
+| Campeón | 20 |
+| Subcampeón | 12 |
+| 3.º-4.º: segundos de grupo | 4 cada uno |
+| 5.º-6.º: terceros de grupo | 2 cada uno |
+| 7.º-8.º: cuartos de grupo | 1 cada uno |
 
-Con dos tableros y grupos sucesivos, la fase de grupos ocupa hasta 60 minutos.
-Agrega tiempo para preparación, pausas, pujas y posibles desempates de grupos.
-El cuadro indica tiempos máximos base. No incluye pausas ni los 30 segundos que el árbitro añade al jugador afectado por una jugada ilegal del rival. Con dos tableros, el total base sube a 150 minutos.
+No se desempata dentro de un par. Puntos del color = suma de sus dos jugadores
+× multiplicador olímpico de su categoría. Ya no existe el ajuste ×2.3 de primaria.
+Se conservan decimales. Hasta resolver la final, sus participantes figuran
+provisionalmente con los puntos de subcampeón.
 
-## Relojes en secundaria
+## Horarios y asistencia
 
-Cada estudiante lleva su celular exclusivamente como reloj con **Chess Clock de Chess.com**.
-Se utiliza un celular por tablero: cuatro bastan para ocho jugadores; pedir los ocho aporta respaldo.
-La aplicación es gratuita y sin anuncios, disponible en Play Store y App Store.
-Antes de jugar, comprobar batería, pausa, edición del tiempo y ausencia de incremento.
-Si un jugador detecta una jugada ilegal del rival, pausa el reloj y llama al profesor.
-Si confirma la infracción, el árbitro añade 30 segundos al jugador afectado y reanuda la partida.
+La propuesta distingue tiempos probables y máximos base, y presenta horarios
+compactos pendientes del coordinador. **Si todas las partidas de una ronda
+terminan antes, se adelanta la siguiente: no se espera la hora del cuadro.**
+Una línea separa el fin de grupos/clasificación, cuando se retiran seis jugadores,
+del bloque reservado a los dos finalistas. Los máximos base no incluyen pausas,
+pujas, bonificaciones por ilegales ni la recaptura excepcional de primaria.
 
-La propuesta PDF incluye tiempos probables, máximos base y horarios de un solo día.
-El escenario requiere cuatro tableros para primaria y cuatro para secundaria; baja y alta
-comparten estos últimos en turnos sucesivos. Los horarios siguen orientativos y pendientes de coordinación. Primaria tiene 20 minutos compartidos por partida normal y revancha.
+No hay tolerancia de llegada: la partida comienza a la hora anunciada y corre el
+reloj correspondiente. Ante inasistencia o negativa a jugar, el color elige
+reemplazo; solo en ese caso puede subir alguien desde una categoría inferior,
+nunca bajar. Revisa su asignación A/B.
 
-## Archivos y respaldos
+## Datos y respaldos
 
-- `config.html`: nombres de los 24 jugadores, conducta por color y tres multiplicadores.
-- `arbitro-primaria.html` / `publico-primaria.html`: primaria.
-- `arbitro-secundaria.html?categoria=baja` / `publico-secundaria.html?categoria=baja`.
-- `arbitro-secundaria.html?categoria=alta` / `publico-secundaria.html?categoria=alta`.
-- `reglas-cefe377693c8.js` / `style.css`: reglas compartidas y diseño del torneo.
-- `manual.html`: guía visual del árbitro integrada en el sitio.
-- `Propuesta_Reestructuracion_Olimpiadas_Ajedrez.pdf`: propuesta actualizada.
+Cada panel exporta/importa un JSON exclusivo de su categoría. No incluye nombres,
+conducta ni multiplicadores de Configuración. Reiniciar una categoría no afecta
+las otras. Una corrección que cambie los finalistas regenera la final y elimina
+sus resultados anteriores. Cambiar una partida de la final elimina su Armagedón.
 
-Cada panel exporta/importa su propio estado en JSON. Los respaldos de secundaria
-identifican su categoría y rechazan una importación en la otra. No incluyen nombres,
-conducta ni multiplicadores, que se guardan en Configuración. Reiniciar un torneo
-no afecta los demás.
+Configuración usa `ajedrez_setup_v2`; secundarias usan
+`ajedrez_secundaria_baja_v2` y `ajedrez_secundaria_alta_v2`.
+Primaria por grupos usa `ajedrez_primaria_grupos_v3`: no interpreta las antiguas
+llaves de `ajedrez_primaria_v2` como resultados de grupos, ni admite sus respaldos.
+Los nombres, conducta y multiplicadores existentes se conservan.
 
-Si una corrección de grupo o conducta cambia un finalista de secundaria, se
-regenera la final sin conservar resultados de los anteriores participantes.
-Si se corrige un resultado de la final, se limpia su Armagedón.
-
-La configuración nueva usa `ajedrez_setup_v2`; las secundarias usan
-`ajedrez_secundaria_baja_v2` y `ajedrez_secundaria_alta_v2`. Primaria usa
-`ajedrez_primaria_v2`. No se migran nombres ni resultados de la antigua secundaria,
-según lo acordado: aún no había datos registrados.
-
-El panel recuerda la última pestaña de cada secundaria. En la final, elige color
-quien tuvo mejor desempeño en grupos: puntos, SB, victorias, conducta y B efectivo
-como último criterio. No se usa enfrentamiento directo entre grupos distintos.
-
-En primaria, B inicia con blancas contra A. En A-A o B-B, el árbitro asigna
-blancas al de menor grado y, a igual grado, a quien nació después. En cuartos y semifinales,
-el jugador con rey ahogado pierde (regla anunciada previamente). En la final,
-el ahogado es tablas. Los puestos se agrupan en 3.º-4.º y 5.º-8.º sin desempates.
-
-La interfaz utiliza grafito y un fondo ajedrecístico diagonal, con los cuatro colores de delegación
-y recursos SVG locales. Funciona sin descargar fuentes o imágenes externas.
-En móvil, las partidas de grupo se muestran en filas verticales. El botón de
-guardar configuración permanece visible durante la edición.
-
-## Criterios de operación actualizados
-
-Primaria: 20 minutos compartidos por partida normal, revancha y partida de final; evaluación de material al límite con margen arbitral para desenlace próximo o material igualado. Esperar al menos dos medios-movimientos tras una captura. En revancha de cuartos/semifinales tras tablas regulares, tiempo agotado con material igualado da pase directo al B efectivo. Armagedón conserva 15 minutos por jugador como regla especial.
-
-Último desempate: B; entre iguales, menor grado y fecha de nacimiento más reciente (B efectivo). El árbitro registra el criterio. En secundaria una jugada se completa al pulsar el reloj; no rige pieza tocada. Esperar si el rival no pulsó es legal y debe anunciarse. Tras dos medios-movimientos sin pulsaciones, el árbitro pausa, advierte y reanuda el reloj de quien debe mover.
-
-Sin tolerancia de llegada: el reloj comienza a la hora. Ante inasistencia o negativa, el color elige reemplazo; únicamente entonces puede subir desde una categoría inferior, nunca bajar. Un celular apagado se vuelve a encender; exigir batería cargada. Horarios pendientes del coordinador.
+La interfaz y los recursos son locales, sin descargas externas para funcionar.
+El manual termina con ejemplos de captura al paso y restricciones del enroque.

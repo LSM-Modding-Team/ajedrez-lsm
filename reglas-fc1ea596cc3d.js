@@ -15,10 +15,8 @@ const COLOR_META = {
   verde:    {label:'Verde',    hex:'#36815a'},
   amarillo: {label:'Amarillo', hex:'#d7aa36'},
 };
-// Config. de esta versión de primaria: qué rondas se juegan a 2 partidas (alternando colores) vs. partido único.
-const ROUND_IS_DOUBLE = { qf:false, sf:false, final:true };
-const PRIMARIA_VARIANT_NOTE = "Cuartos y semifinales se juegan a partido único: empate → revancha con colores invertidos → si persiste, decide la conducta (menos penalizaciones) → si también empatan ahí, avanza quien inició con blancas. La final es un caso especial con árbitro dedicado: dos partidas (una con cada color) y Armagedón directo si hay empate 1–1.";
-const PLACE_POINTS_PRIMARIA = {1:8, 2:4, 3:2, 4:2, 5:1, 6:1, 7:1, 8:1};
+const PRIMARY_ROUND_MS = 20 * 60 * 1000;
+const PLACE_POINTS_PRIMARIA = {1:20, 2:12, 3:4, 4:4, 5:2, 6:2, 7:1, 8:1};
 
 // Secundaria: patrón de blancas/negras para las 6 partidas de la fase de grupos ([blancas, negras] por slot).
 // Los participantes A (Bx internos) juegan 2 con negras y 1 con blancas; los B (Mx), al revés.
@@ -32,7 +30,7 @@ const PLACE_POINTS_SECUNDARIA = {1:20, 2:12, 3:4, 4:4, 5:2, 6:2, 7:1, 8:1};
 
 /* ============================= ALMACENAMIENTO ============================= */
 const MODALITIES = [
-  {id:'primaria', label:'Primaria', grades:'1.º a 6.º de primaria', factor:2.3},
+  {id:'primaria', label:'Primaria', grades:'1.º a 6.º de primaria', factor:1},
   {id:'secundaria_baja', label:'Secundaria baja', grades:'1.º y 2.º de secundaria', factor:1},
   {id:'secundaria_alta', label:'Secundaria alta', grades:'3.º, 4.º y 5.º de secundaria', factor:1},
 ];
@@ -41,7 +39,7 @@ const SECONDARY_MODE = new URLSearchParams(window.location.search).get('categori
 function modalityMeta(mode){ return MODALITIES.find(m=>m.id===mode); }
 const LS_KEYS = {
   setup: 'ajedrez_setup_v2',
-  primaria: 'ajedrez_primaria_v2',
+  primaria: 'ajedrez_primaria_grupos_v3',
   secundaria_baja: 'ajedrez_secundaria_baja_v2',
   secundaria_alta: 'ajedrez_secundaria_alta_v2',
 };
@@ -104,7 +102,7 @@ function saveSetup(setup){
 }
 
 // Puntaje = puntos por puesto × ajuste de reparto × escala olímpica configurable.
-// Primaria reparte 20 puntos base; cada secundaria, 46. Por eso el ajuste es 46/20 = 2.3.
+// Las tres categorías reparten 46 puntos base; solo se aplica su escala olímpica.
 function modalityWeight(mode){
   const setup = getSetup();
   const w = Number(setup.weights[mode]);
@@ -112,28 +110,33 @@ function modalityWeight(mode){
   return base*modalityMeta(mode).factor;
 }
 
-function freshPrimaria(){
-  return { seedOrder:['','','',''], bracket:null, matches:null };
+function freshPrimaria(){ return freshSecundaria('primaria'); }
+function getPrimaria(){ return getSecundaria('primaria'); }
+function savePrimaria(P){ saveSecundaria(P); }
+
+// El plazo absoluto conserva el tiempo al recargar o cambiar de pestaña.
+function primaryTimer(S, round=S.activeRound||0){
+  return S.roundTimers?.[round] || {remainingMs:PRIMARY_ROUND_MS, deadline:null, started:false};
 }
-function getPrimaria(){
-  const P=loadJSON(LS_KEYS.primaria,null)||freshPrimaria();
-  if(P.matches){
-    const matches=[...Object.values(P.matches.QF),...Object.values(P.matches.SF),P.matches.FINAL].filter(Boolean);
-    for(const m of matches){
-      if(m.firstColorRule===2) continue;
-      if(pidRole(m.p1)!==pidRole(m.p2)){
-        const newWhite=pidRole(m.p1)==='malo';
-        if(newWhite!==m.whiteFirstIsP1) m.games.forEach(g=>{g.result=({white:'black',black:'white','stalemate-white':'stalemate-black','stalemate-black':'stalemate-white'})[g.result]||g.result;});
-        m.whiteFirstIsP1=newWhite;
-      }else if(!m.games.some(g=>g.result)) m.whiteFirstIsP1=null;
-      m.firstColorRule=2;
-    }
-  }
-  return P;
+function primaryRemaining(S, round=S.activeRound||0, now=Date.now()){
+  const timer=primaryTimer(S,round);
+  return Math.max(0,timer.deadline==null ? timer.remainingMs : timer.deadline-now);
 }
-function savePrimaria(P){
-  saveJSON(LS_KEYS.primaria, P);
+function setPrimaryTimer(S, action, round=S.activeRound||0, now=Date.now()){
+  if(!Number.isInteger(round) || round<0 || round>2) return false;
+  S.roundTimers ||= {};
+  const timer={...primaryTimer(S,round)};
+  if(action==='reset') S.roundTimers[round]={remainingMs:PRIMARY_ROUND_MS,deadline:null,started:false};
+  else if(action==='pause') S.roundTimers[round]={...timer,remainingMs:primaryRemaining(S,round,now),deadline:null};
+  else if(action==='start'){
+    // Una sola ronda puede estar corriendo. No reiniciar un reloj activo.
+    if(timer.deadline!=null || primaryRemaining(S,round,now)<=0 || Object.keys(S.roundTimers).some(r=>Number(r)!==round && S.roundTimers[r].deadline>now)) return false;
+    S.roundTimers[round]={remainingMs:timer.remainingMs,deadline:now+timer.remainingMs,started:true};
+  } else return false;
+  S.activeRound=round;
+  return true;
 }
+function primaryMaterialResult(white,black){ return Math.abs(white-black)>1 ? (white>black?'white':'black') : 'draw'; }
 
 function freshSecundaria(mode=SECONDARY_MODE){
   return {
@@ -189,10 +192,6 @@ function chip(p, mode='primaria'){
   return `<span class="chip"><span class="dot" style="--c:${COLOR_META[c].hex}"></span>${playerName(p, mode)}</span>`;
 }
 
-/* ============================= PRIMARIA: MOTOR DE LLAVES ============================= */
-function seedCompleteP(P){
-  return P.seedOrder.every(c=>c) && new Set(P.seedOrder).size===4;
-}
 function shuffleSeedArr(){
   const arr = [...COLORS];
   for(let i=arr.length-1;i>0;i--){
@@ -200,153 +199,6 @@ function shuffleSeedArr(){
     [arr[i],arr[j]]=[arr[j],arr[i]];
   }
   return arr;
-}
-function mkMatch(P, pA, pB, isDouble, roundType){
-  // A/B: B empieza con blancas. Mismo rol: el árbitro indica menor grado/edad.
-  const whiteFirstIsP1=pidRole(pA)!==pidRole(pB) ? pidRole(pA)==='malo' : null;
-  return {
-    p1: pA, p2: pB,
-    whiteFirstIsP1, firstColorRule:2,
-    roundType, // 'qf' | 'sf' | 'final' — determina la cascada de desempate
-    games: isDouble ? [{result:null},{result:null}] : [{result:null}],
-    tiebreakWinner: null, // último recurso en cuartos/semis: empate también en conducta → B efectivo
-    armageddon: null,     // solo se usa en la final, tras empate en dos partidas
-  };
-}
-function confirmBracket(P){
-  if(!seedCompleteP(P)) return false;
-  const [c1,c2,c3,c4] = P.seedOrder;
-  const half1 = [
-    {slot:'A1', pid: pid(c1,'bueno')},
-    {slot:'A2', pid: pid(c2,'bueno')},
-    {slot:'B1', pid: pid(c3,'malo')},
-    {slot:'B2', pid: pid(c4,'malo')},
-  ];
-  const half2 = [
-    {slot:'A1', pid: pid(c3,'bueno')},
-    {slot:'A2', pid: pid(c4,'bueno')},
-    {slot:'B1', pid: pid(c1,'malo')},
-    {slot:'B2', pid: pid(c2,'malo')},
-  ];
-  P.bracket = {half1, half2};
-  const find = (half,slot) => half.find(x=>x.slot===slot).pid;
-  P.matches = {
-    QF: {
-      h1a: mkMatch(P, find(half1,'A1'), find(half1,'B1'), ROUND_IS_DOUBLE.qf, 'qf'),
-      h1b: mkMatch(P, find(half1,'A2'), find(half1,'B2'), ROUND_IS_DOUBLE.qf, 'qf'),
-      h2a: mkMatch(P, find(half2,'A1'), find(half2,'B1'), ROUND_IS_DOUBLE.qf, 'qf'),
-      h2b: mkMatch(P, find(half2,'A2'), find(half2,'B2'), ROUND_IS_DOUBLE.qf, 'qf'),
-    },
-    SF: { h1:null, h2:null },
-    FINAL: null,
-  };
-  return true;
-}
-function generateSF(P, half){
-  const M = P.matches;
-  const qfA = half==='h1'? M.QF.h1a : M.QF.h2a;
-  const qfB = half==='h1'? M.QF.h1b : M.QF.h2b;
-  const wa = pMatchWinner(qfA), wb = pMatchWinner(qfB);
-  if(!wa||!wb) return false;
-  M.SF[half] = mkMatch(P, wa, wb, ROUND_IS_DOUBLE.sf, 'sf');
-  return true;
-}
-function generateFinalP(P){
-  const M = P.matches;
-  const w1 = M.SF.h1 && pMatchWinner(M.SF.h1), w2 = M.SF.h2 && pMatchWinner(M.SF.h2);
-  if(!w1||!w2) return false;
-  M.FINAL = mkMatch(P, w1, w2, ROUND_IS_DOUBLE.final, 'final');
-  return true;
-}
-// Genera automáticamente semis/final en cuanto ambos lados estén listos. Llamar tras cada resultado.
-function autoAdvance(P){
-  if(!P.matches) return;
-  const M = P.matches;
-  if(!M.SF.h1) generateSF(P,'h1');
-  if(!M.SF.h2) generateSF(P,'h2');
-  if(!M.FINAL) generateFinalP(P);
-}
-// Slot provisional: cuando la siguiente ronda todavía no existe como partido real, pero uno (o los
-// dos) de sus jugadores ya se conoce. Devuelve null si ninguno de los dos se conoce todavía.
-function pProvisionalSF(P, half){
-  const M = P.matches;
-  if(M.SF[half]) return M.SF[half];
-  const qfA = half==='h1'? M.QF.h1a : M.QF.h2a;
-  const qfB = half==='h1'? M.QF.h1b : M.QF.h2b;
-  const wa = pMatchWinner(qfA), wb = pMatchWinner(qfB);
-  if(!wa && !wb) return null;
-  return { provisional:true, p1:wa, p2:wb };
-}
-function pProvisionalFinal(P){
-  const M = P.matches;
-  if(M.FINAL) return M.FINAL;
-  const w1 = M.SF.h1 ? pMatchWinner(M.SF.h1) : null;
-  const w2 = M.SF.h2 ? pMatchWinner(M.SF.h2) : null;
-  if(!w1 && !w2) return null;
-  return { provisional:true, p1:w1, p2:w2 };
-}
-function pGameColors(match, idx){
-  const whiteIsP1 = (idx%2===0) ? match.whiteFirstIsP1 : !match.whiteFirstIsP1;
-  return whiteIsP1 ? {white:match.p1, black:match.p2} : {white:match.p2, black:match.p1};
-}
-function pMatchTally(match){
-  let s1=0,s2=0,played=0;
-  match.games.forEach((gm,i)=>{
-    if(!gm.result) return;
-    played++;
-    const result=gm.result==='time-draw' ? 'draw' : gm.result==='stalemate-white' ? (match.roundType==='final'?'draw':'black')
-      : gm.result==='stalemate-black' ? (match.roundType==='final'?'draw':'white') : gm.result;
-    const {white,black} = pGameColors(match,i);
-    if(result==='draw'){ s1+=0.5; s2+=0.5; return; }
-    const winner = result==='white' ? white : black;
-    if(winner===match.p1) s1+=1; else s2+=1;
-  });
-  return {s1,s2,played};
-}
-function pConductWinner(match){
-  // Desempate de conducta (solo cuartos/semis): menos penalizaciones avanza. Empate en conducta → null.
-  const pen1 = penaltyOf(match.p1), pen2 = penaltyOf(match.p2);
-  if(pen1 < pen2) return match.p1;
-  if(pen2 < pen1) return match.p2;
-  return null;
-}
-function pMatchWinner(match){
-  if(!match) return null;
-  const t = pMatchTally(match);
-  if(t.played < match.games.length) return null;
-  if(t.s1>t.s2) return match.p1;
-  if(t.s2>t.s1) return match.p2;
-  // Empate exacto en el marcador de las partidas ya jugadas.
-  if(match.roundType==='final'){
-    return (match.armageddon && match.armageddon.winnerPid) || null; // decide el Armagedón
-  }
-  if(match.games.length < 2) return null; // falta la revancha con colores invertidos
-  if(match.games[0].result==='draw' && match.games[1].result==='time-draw') return match.whiteFirstIsP1==null ? null : pGameColors(match,0).white;
-  const cw = pConductWinner(match);
-  if(cw) return cw; // decide la conducta (menos penalizaciones)
-  return match.whiteFirstIsP1==null ? null : pGameColors(match,0).white; // empate también en conducta: avanza quien empezó con blancas
-}
-function pNeedsRematch(match){
-  if(match.roundType==='final') return false;
-  const t = pMatchTally(match);
-  return match.games.length===1 && t.played===1 && t.s1===t.s2;
-}
-function pFinalNeedsArmageddon(match){
-  if(match.roundType!=='final') return false;
-  const t = pMatchTally(match);
-  return match.games.length===2 && t.played===2 && t.s1===t.s2 && !pMatchWinner(match);
-}
-
-/* ---- Mutadores de partido (usados por arbitro.html; operan directo sobre el objeto match) ---- */
-function setGameResult(match, idx, result){
-  match.games[idx].result = result || null;
-}
-function pushRematchGame(match){
-  match.games.push({result:null});
-}
-
-function setRefereeWinner(match, winnerPid){
-  match.tiebreakWinner = winnerPid;
 }
 function ensureArmageddon(match, maxSeconds=ARMAGEDDON_MAX_SECONDS){
   maxSeconds = Math.min(ARMAGEDDON_MAX_SECONDS, maxSeconds);
@@ -371,37 +223,6 @@ function randomArmageddonColors(match){
 }
 function setArmageddonWinner(match, winnerPid){
   match.armageddon.winnerPid = winnerPid;
-}
-
-/* ============================= PRIMARIA: PUNTOS OLIMPIADA ============================= */
-function computePlacementsPrimaria(P){
-  const M = P.matches;
-  if(!M) return null;
-  const placements = {};
-  [['h1a',M.QF.h1a],['h1b',M.QF.h1b],['h2a',M.QF.h2a],['h2b',M.QF.h2b]].forEach(([k,m])=>{
-    const w = pMatchWinner(m);
-    if(w) placements[w===m.p1?m.p2:m.p1]=5; // 5º-8º comparten valor de puntos
-  });
-  ['h1','h2'].forEach(h=>{
-    const m = M.SF[h];
-    if(m){
-      const w = pMatchWinner(m);
-      if(w) placements[w===m.p1?m.p2:m.p1]=3; // 3º-4º comparten valor de puntos
-    }
-  });
-  if(M.FINAL){
-    const w = pMatchWinner(M.FINAL);
-    if(w){
-      placements[w]=1;
-      placements[w===M.FINAL.p1?M.FINAL.p2:M.FINAL.p1]=2;
-    } else {
-      placements[M.FINAL.p1]=2; placements[M.FINAL.p2]=2; // provisional
-    }
-  } else {
-    const w1=M.SF.h1?pMatchWinner(M.SF.h1):null, w2=M.SF.h2?pMatchWinner(M.SF.h2):null;
-    if(w1) placements[w1]=2; if(w2) placements[w2]=2; // provisional
-  }
-  return placements;
 }
 
 /* ============================= SECUNDARIA: FASE DE GRUPOS ============================= */
@@ -577,7 +398,7 @@ function tieBreakLabelS(S, g, a, b){
   if(st.wins[a] !== st.wins[b]) return 'victorias';
   if(penaltyOf(a) !== penaltyOf(b)) return 'conducta';
   if(pidRole(a)!==pidRole(b)) return 'prioridad B';
-  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'B efectivo (grado y edad)';
+  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'B efectivo (grado y nacimiento)';
   return 'empate total (sin desempate)';
 }
 // Misma idea para comparar jugadores de grupos distintos (5º-8º puesto): no hay partidos entre
@@ -589,7 +410,7 @@ function tieBreakLabelCombinedS(S, a, b){
   if(cs.wins[a] !== cs.wins[b]) return 'victorias';
   if(penaltyOf(a) !== penaltyOf(b)) return 'conducta';
   if(pidRole(a)!==pidRole(b)) return 'prioridad B';
-  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'B efectivo (grado y edad)';
+  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'B efectivo (grado y nacimiento)';
   return 'empate total (sin desempate)';
 }
 
@@ -679,8 +500,3 @@ function computePlacementsS(S){
   return placements;
 }
 
-function placementTiersP(P){
-  const placements=computePlacementsPrimaria(P)||{};
-  return [1,2,3,5].map(place=>({place,players:Object.keys(placements).filter(p=>placements[p]===place)})).filter(t=>t.players.length);
-}
-function placementLabelP(place){ return place===3?'3.º-4.º':place===5?'5.º-8.º':`${place}.º`; }
