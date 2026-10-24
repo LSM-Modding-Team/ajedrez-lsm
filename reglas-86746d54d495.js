@@ -96,6 +96,9 @@ function getSetup(){
   };
 }
 
+function categoryConfigured(mode, setup=getSetup()){
+  return COLORS.every(c=>['bueno','malo'].every(role=>String(setup[mode]?.players?.[c]?.[role]||'').trim()));
+}
 function saveSetup(setup){
   setup.savedAt = new Date().toISOString();
   saveJSON(LS_KEYS.setup, setup);

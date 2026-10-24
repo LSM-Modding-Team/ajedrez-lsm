@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel del árbitro — Secundaria</title>
 <link rel="stylesheet" href="style.css?v=7bffda414e56">
@@ -32,7 +32,7 @@
   </details>
 </footer>
 
-<script src="reglas-fc1ea596cc3d.js"></script>
+<script src="reglas-86746d54d495.js"></script>
 <script>
 const MODE=SECONDARY_MODE;
 const CATEGORY=modalityMeta(MODE);
@@ -122,7 +122,7 @@ function renderTabs(){
 }
 function renderSetupBanner(){
   const setup = getSetup();
-  if(!setup.locked){
+  if(!setup.locked || !categoryConfigured(MODE,setup)){
     return `<div class="panel"><div class="warn">Faltan los nombres de los jugadores. <a href="config.html" style="color:inherit">Abrir configuración →</a></div></div>`;
   }
   return '';

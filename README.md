@@ -6,8 +6,8 @@ y secundaria alta (3.º a 5.º). Cuatro colores, dos estudiantes por color y cat
 ## Uso
 
 Abre el sitio publicado o sirve esta carpeta con `python -m http.server 8000`.
-No necesita compilación ni backend. Configuración, árbitro y resultados deben
-abrirse en el mismo navegador, perfil, computadora y origen. Los datos se guardan
+No necesita compilación ni backend. Cada salón usa una computadora: primaria en una y las dos secundarias en otra.
+En cada equipo, árbitro y resultados usan el mismo navegador, perfil y origen. Los datos se guardan
 localmente y las pestañas se actualizan entre sí; no sincronizan entre equipos.
 Evita el modo privado y no borres los datos del navegador.
 
@@ -16,7 +16,7 @@ El manual visual está integrado en `manual.html`. La propuesta imprimible es
 
 ## Preparación
 
-- Registra los 24 nombres en Configuración. A es mayor grado; a igual grado,
+- Configura solo las categorías del salón; las demás pueden quedar vacías. A es mayor grado; a igual grado,
   fecha de nacimiento más antigua. B es el otro; no representa habilidad.
 - Conducta se registra una vez por color y se comparte entre categorías.
 - Cada categoría tiene su propio multiplicador olímpico. Guarda antes de iniciar.
@@ -97,8 +97,10 @@ provisionalmente con los puntos de subcampeón.
 
 ## Horarios y asistencia
 
-La propuesta distingue tiempos probables y máximos base, y presenta horarios
-compactos pendientes del coordinador. **Si todas las partidas de una ronda
+Cada salón reporta sus resultados independientemente a la organización.
+La propuesta distingue tiempos probables y máximos base. Sus horarios representan
+el peor caso previsto, con partidas completas y Armagedón, y están pendientes del coordinador.
+La jornada real probablemente será bastante más corta, especialmente en primaria. **Si todas las partidas de una ronda
 terminan antes, se adelanta la siguiente: no se espera la hora del cuadro.**
 Una línea separa el fin de grupos/clasificación, cuando se retiran seis jugadores,
 del bloque reservado a los dos finalistas. Los máximos base no incluyen pausas,

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Configuración — Olimpiadas de ajedrez</title>
 <link rel="stylesheet" href="style.css?v=7bffda414e56">
@@ -11,13 +11,13 @@
 
 <header class="top">
   <h1>Configuración</h1>
-  <p>Dos jugadores por color y categoría. A: mayor grado; a igual grado, fecha de nacimiento más antigua.</p>
+  <p>Completa solo las categorías de este salón; las demás pueden quedar vacías. A: mayor grado; a igual grado, fecha de nacimiento más antigua.</p>
 </header>
 
 
 <main id="app"></main>
 
-<script src="reglas-fc1ea596cc3d.js"></script>
+<script src="reglas-86746d54d495.js"></script>
 <script>
 let setup = getSetup();
 
@@ -59,6 +59,7 @@ function renderDelegationBlock(mode, title, subtitle){
   return `
     <div class="panel">
       <h2>${title}</h2>
+      <div class="sub">${categoryConfigured(mode,setup)?'Categoría lista.':COLORS.some(c=>Object.values(bucket.players[c]).some(n=>String(n).trim()))?'Nombres incompletos.':'Sin configurar.'}</div>
       ${subtitle?`<div class="sub">${subtitle}</div>`:''}
       <div class="grid4">
         ${COLORS.map(c=>`
@@ -100,7 +101,7 @@ function render(){
     ${renderWeights()}
     <div class="panel config-actions">
       ${locked ? `
-        <div class="good-note">Configuración guardada.</div>
+        <div class="good-note">Configuración guardada. Las categorías vacías quedan sin configurar.</div>
         <div class="rowbtns">
           <button class="btn ghost" onclick="unlock()">Editar</button>
         </div>
