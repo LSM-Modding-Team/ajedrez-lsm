@@ -38,7 +38,7 @@ No se juegan partidas adicionales de grupo.
 Solo los líderes pasan a una final de dos partidas 15+0 por jugador, alternando
 piezas. Elige color inicial quien tenga mejor desempeño en grupos: puntos, SB,
 victorias, conducta y B/B efectivo; sin enfrentamiento directo entre grupos.
-Empate 1-1, incluidas dos tablas: Armagedón directo. No hay semifinales ni tercer puesto.
+Empate 1-1, incluidas dos tablas: Armagedón directo. Los demás puestos se comparten según la clasificación de grupos.
 
 Armagedón: puja secreta de 0 a 15 minutos, precisión de un segundo, sin incremento.
 La puja menor obtiene negras con ese tiempo y gana con tablas. Blancas recibe
@@ -56,10 +56,10 @@ Al cumplirse el límite se congela el tablero. Victoria con más de un punto de
 ventaja material (al menos 2); con uno o igualdad, tablas. Peón 1, caballo 3,
 alfil 3, torre 5, dama 9; el rey no puntúa. Solo excepcionalmente el árbitro puede
 permitir una recaptura si cortar ahí falsea un intercambio o captura de último
-segundo. No se espera automáticamente dos medios-movimientos ni a que aparezca ventaja.
+segundo. La decisión se limita a resolver esa recaptura.
 
 Pieza soltada, pieza movida en toda primaria, también final y Armagedón.
-Ahogado siempre es tablas. No hay revanchas. La final usa reloj individual:
+Ahogado siempre es tablas. La final usa reloj individual:
 un organizador aporta el celular, supervisa y pulsa si los niños se olvidan.
 No se permite aprovechar esos olvidos. Allí no rige el límite compartido ni
 la evaluación de material de los grupos.
@@ -91,7 +91,7 @@ Las tres categorías reparten 46 puntos base:
 | 7.º-8.º: cuartos de grupo | 1 cada uno |
 
 No se desempata dentro de un par. Puntos del color = suma de sus dos jugadores
-× multiplicador olímpico de su categoría. Ya no existe el ajuste ×2.3 de primaria.
+× multiplicador olímpico de su categoría. Cada categoría reparte 46 puntos base.
 Se conservan decimales. Hasta resolver la final, sus participantes figuran
 provisionalmente con los puntos de subcampeón.
 
@@ -118,9 +118,7 @@ sus resultados anteriores. Cambiar una partida de la final elimina su Armagedón
 
 Configuración usa `ajedrez_setup_v2`; secundarias usan
 `ajedrez_secundaria_baja_v2` y `ajedrez_secundaria_alta_v2`.
-Primaria por grupos usa `ajedrez_primaria_grupos_v3`: no interpreta las antiguas
-llaves de `ajedrez_primaria_v2` como resultados de grupos, ni admite sus respaldos.
-Los nombres, conducta y multiplicadores existentes se conservan.
+Primaria usa `ajedrez_primaria_grupos_v3`.
 
 La interfaz y los recursos son locales, sin descargas externas para funcionar.
 El manual termina con ejemplos de captura al paso y restricciones del enroque.
