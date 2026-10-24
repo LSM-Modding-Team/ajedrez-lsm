@@ -362,3 +362,5 @@ nav.tabs button{background:#151a1e}
 }
 @media(min-width:1000px) and (max-width:1599px){.page-control .group-columns{grid-template-columns:1fr}}
 @media(min-width:1000px) and (max-width:1199px){.page-config .grid4:not(.weights-grid){grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* La guía integrada también está disponible desde la navegación móvil. */
+@media(max-width:800px){.sitebar nav a[href="manual.html"]{display:inline}}

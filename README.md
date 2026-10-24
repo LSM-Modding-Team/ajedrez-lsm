@@ -99,7 +99,7 @@ El cuadro indica tiempos de juego, no una duración máxima de toda la jornada.
 - `arbitro-secundaria.html?categoria=baja` / `publico-secundaria.html?categoria=baja`.
 - `arbitro-secundaria.html?categoria=alta` / `publico-secundaria.html?categoria=alta`.
 - `reglas-6887458a6755.js` / `style.css`: reglas compartidas y diseño del torneo.
-- `README-ARBITROS.pdf`: guía práctica actualizada.
+- `manual.html`: guía visual del árbitro integrada en el sitio.
 - `Propuesta_Reestructuracion_Olimpiadas_Ajedrez.pdf`: propuesta actualizada.
 
 Cada panel exporta/importa su propio estado en JSON. Los respaldos de secundaria
