@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel del árbitro — Secundaria</title>
-<link rel="stylesheet" href="style.css?v=8e2eec3777f6">
+<link rel="stylesheet" href="style.css?v=ecfa4e0114fe">
 </head>
 <body class="page-control page-arbitro-secundaria">
 <div class="sitebar"><a class="event-brand" href="index.html" aria-label="Olimpiadas escolares, inicio"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 7h5v5h5V7h5v5h5V7h5v12h-4l-2 12h6v4H8v-4h6l-2-12H8Z" fill="currentColor"/></svg><span>OLIMPIADAS<span>ESCOLARES / AJEDREZ</span></span></a><nav aria-label="Navegación principal"><a href="index.html">Torneos</a><a href="config.html">Configuración</a><a href="manual.html">Guía del árbitro</a></nav></div>
@@ -16,6 +16,7 @@
 
 
 <nav class="tabs" id="tabs"></nav>
+<details class="panel clock-help"><summary>Celulares, reloj y jugadas ilegales</summary><p>Un celular por tablero, exclusivamente como reloj con Chess Clock de Chess.com. Todos llevan el suyo como respaldo. Configura 5+0 en grupos; 15+0 en la final; Armagedón: blancas 15:00 y negras el tiempo de su puja.</p><p>Si detectas una jugada ilegal del rival, pausa el reloj y llama al profesor. Si confirma la infracción, añade 30 segundos a tu tiempo y reanuda la partida. Solo el árbitro modifica el reloj.</p><a href="manual.html#relojes">Ver preparación y descargas</a></details>
 <main id="app"></main>
 
 <footer class="databar">
@@ -31,7 +32,7 @@
   </details>
 </footer>
 
-<script src="reglas-6887458a6755.js"></script>
+<script src="reglas-b4f3fcffe510.js"></script>
 <script>
 const MODE=SECONDARY_MODE;
 const CATEGORY=modalityMeta(MODE);
@@ -246,7 +247,7 @@ function renderArmageddon(key, match, maxSeconds){
   if(!A.resolvedColors){
     return `
     <div class="arma-box">
-      <h4>Armagedón — puja ciega (0–${Math.floor(maxSeconds/60)} min, incrementos de 1 seg)</h4>
+      <h4>Armagedón — puja ciega (0–${Math.floor(maxSeconds/60)} min, precisión de 1 seg)</h4>
       <div class="note">Cada jugador escribe en secreto su tiempo en segundos, ambos papeles se entregan al árbitro a la vez. Quien pujó menos juega con negras (con ese tiempo) y gana en caso de tablas; quien pujó más juega con blancas con el tiempo máximo.</div>
       <div class="bidrow" style="margin-top:10px">
         <div class="bidfield">
@@ -350,9 +351,9 @@ function renderProvisionalCard(title, prov){
 }
 
 function renderFinal(){
-  const rules='<div class="panel"><h2>Final · 1.º Grupo A vs 1.º Grupo B</h2><div class="sub">Dos partidas de 15+0, alternando piezas. Empate 1-1 → Armagedón directo (puja hasta 20 minutos).</div><div class="note">Hasta 60 minutos de juego; con Armagedón, hasta 100.</div></div>';
+  const rules='<div class="panel"><h2>Final · 1.º Grupo A vs 1.º Grupo B</h2><div class="sub">Dos partidas de 15+0, alternando piezas. Empate 1-1 → Armagedón directo (puja hasta 15 minutos).</div><div class="note">Hasta 60 minutos de juego; con Armagedón, hasta 90, sin pausas ni bonificaciones por jugadas ilegales.</div></div>';
   if(!S.final) return rules+renderProvisionalCard('Gran Final',provisionalFinalS(S));
-  return rules+renderMatchCard('Gran Final','FINAL',S.final,{maxSeconds:1200});
+  return rules+renderMatchCard('Gran Final','FINAL',S.final,{maxSeconds:ARMAGEDDON_MAX_SECONDS});
 }
 
 function renderPuntos(){

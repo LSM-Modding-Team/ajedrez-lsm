@@ -364,3 +364,9 @@ nav.tabs button{background:#151a1e}
 @media(min-width:1000px) and (max-width:1199px){.page-config .grid4:not(.weights-grid){grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* La guía integrada también está disponible desde la navegación móvil. */
 @media(max-width:800px){.sitebar nav a[href="manual.html"]{display:inline}}
+
+/* Instrucciones del reloj junto a las fases de secundaria. */
+.page-control .clock-help{margin:0 34px 20px;font-size:var(--body-size,16px)}
+.page-control .clock-help summary{font-weight:700;cursor:pointer}
+.page-control .clock-help p{max-width:100ch;color:var(--ink-muted)}
+@media(max-width:800px){.page-control .clock-help{margin-inline:22px}}

@@ -7,6 +7,7 @@
    ===================================================================== */
 
 /* ============================= DATOS BASE ============================= */
+const ARMAGEDDON_MAX_SECONDS = 15 * 60;
 const COLORS = ['rojo','azul','verde','amarillo'];
 const COLOR_META = {
   rojo:     {label:'Rojo',     hex:'#bd4d42'},
@@ -346,12 +347,16 @@ function pushRematchGame(match){
 function setRefereeWinner(match, winnerPid){
   match.tiebreakWinner = winnerPid;
 }
-function ensureArmageddon(match, maxSeconds){
-  if(!match.armageddon) match.armageddon = {maxSeconds, bid1:null, bid2:null, attempts:0, resolvedColors:null, winnerPid:null};
+function ensureArmageddon(match, maxSeconds=ARMAGEDDON_MAX_SECONDS){
+  maxSeconds = Math.min(ARMAGEDDON_MAX_SECONDS, maxSeconds);
+  // Al cambiar el tope, las pujas pendientes se repiten; un ganador registrado se conserva.
+  if(!match.armageddon || (!match.armageddon.winnerPid && match.armageddon.maxSeconds!==maxSeconds)) match.armageddon = {maxSeconds, bid1:null, bid2:null, attempts:0, resolvedColors:null, winnerPid:null};
   return match.armageddon;
 }
 function registerArmageddonBid(match, maxSeconds, n1, n2){
   const A = ensureArmageddon(match, maxSeconds);
+  n1 = Math.max(0, Math.min(A.maxSeconds, Math.floor(Number(n1)||0)));
+  n2 = Math.max(0, Math.min(A.maxSeconds, Math.floor(Number(n2)||0)));
   if(n1===n2){ A.attempts++; A.bid1=n1; A.bid2=n2; return {tie:true}; }
   if(n1<n2) A.resolvedColors = {blackPid:match.p1, whitePid:match.p2, blackSeconds:n1};
   else A.resolvedColors = {blackPid:match.p2, whitePid:match.p1, blackSeconds:n2};

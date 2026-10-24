@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel del árbitro — Primaria</title>
-<link rel="stylesheet" href="style.css?v=8e2eec3777f6">
+<link rel="stylesheet" href="style.css?v=ecfa4e0114fe">
 </head>
 <body class="page-control page-arbitro-primaria">
 <div class="sitebar"><a class="event-brand" href="index.html" aria-label="Olimpiadas escolares, inicio"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 7h5v5h5V7h5v5h5V7h5v12h-4l-2 12h6v4H8v-4h6l-2-12H8Z" fill="currentColor"/></svg><span>OLIMPIADAS<span>ESCOLARES / AJEDREZ</span></span></a><nav aria-label="Navegación principal"><a href="index.html">Torneos</a><a href="config.html">Configuración</a><a href="manual.html">Guía del árbitro</a></nav></div>
@@ -32,7 +32,7 @@
   </details>
 </footer>
 
-<script src="reglas-6887458a6755.js"></script>
+<script src="reglas-b4f3fcffe510.js"></script>
 <script>
 let P = getPrimaria();
 let tab = 'sorteo';
@@ -148,7 +148,7 @@ function renderArmageddon(key, match, maxSeconds){
   if(!A.resolvedColors){
     return `
     <div class="arma-box">
-      <h4>Armagedón — puja ciega (0–${Math.floor(maxSeconds/60)} min, incrementos de 1 seg)</h4>
+      <h4>Armagedón — puja ciega (0–${Math.floor(maxSeconds/60)} min, precisión de 1 seg)</h4>
       <div class="note">Cada jugador escribe en secreto su tiempo en segundos, ambos papeles se entregan al árbitro a la vez. Quien pujó menos juega con negras (con ese tiempo) y gana en caso de tablas; quien pujó más juega con blancas con el tiempo máximo.</div>
       <div class="bidrow" style="margin-top:10px">
         <div class="bidfield">
@@ -256,7 +256,7 @@ function renderPMatchCard(title, key, match){
 
     ${tiedAfterRematch && !pConductWinner(match)?`<div class="note">Empate 1–1 y en conducta: avanza ${playerName(pGameColors(match,0).white)}, quien inició con blancas.</div>`:''}
 
-    ${pFinalNeedsArmageddon(match) ? renderArmageddon(key, match, 1200) : ''}
+    ${pFinalNeedsArmageddon(match) ? renderArmageddon(key, match, ARMAGEDDON_MAX_SECONDS) : ''}
 
     ${done?`<div class="note" style="margin-top:8px">Avanza: <b>${playerName(winner)}</b></div>`:''}
   </div>`;
@@ -275,7 +275,7 @@ function renderLlaves(){
   html += M.SF.h1 ? renderPMatchCard('Semifinal · Llave 1', 'SF.h1', M.SF.h1) : renderProvisionalCard('Semifinal · Llave 1', pProvisionalSF(P,'h1'));
   html += M.SF.h2 ? renderPMatchCard('Semifinal · Llave 2', 'SF.h2', M.SF.h2) : renderProvisionalCard('Semifinal · Llave 2', pProvisionalSF(P,'h2'));
 
-  html += `<div class="panel"><h2>Final</h2><div class="sub">Dos partidas, una con cada color. Empate 1–1 → Armagedón directo (puja hasta 20 minutos).</div></div>`;
+  html += `<div class="panel"><h2>Final</h2><div class="sub">Dos partidas, una con cada color. Empate 1–1 → Armagedón directo (puja hasta 15 minutos).</div></div>`;
   html += M.FINAL ? renderPMatchCard('Gran Final', 'FINAL', M.FINAL) : renderProvisionalCard('Gran Final', pProvisionalFinal(P));
   return html;
 }

@@ -37,7 +37,7 @@ Eliminación directa con cuartos A contra B, siempre de colores distintos:
 - Cuartos y semifinales: partido único; tablas → revancha con piezas invertidas;
   empate persistente → conducta → quien inició con blancas.
 - Final: dos partidas; empate 1-1 → Armagedón directo por puja
-  ciega con máximo de 20 minutos.
+  ciega con máximo de 15 minutos.
 - Puntos por puesto: **8, 4, 2, 2, 1, 1, 1, 1**. Total base: **20**.
 
 ## Cada secundaria
@@ -55,9 +55,9 @@ Eliminación directa con cuartos A contra B, siempre de colores distintos:
   cuando ambos grupos están completos y sus líderes están definidos.
 - Final: **dos partidas 15+0**, alternando piezas. Empate 1-1 (incluidas dos
   tablas) → **Armagedón directo**, sin dos partidas adicionales.
-- Armagedón: puja secreta de 0 a 20 minutos, en pasos de un segundo; **sin
+- Armagedón: puja secreta de 0 a 15 minutos, en pasos de un segundo; **sin
   incremento por jugada**. La puja menor lleva negras con ese tiempo y gana
-  con tablas; blancas tiene 20 minutos y debe ganar. Pujas iguales se repiten;
+  con tablas; blancas tiene 15 minutos y debe ganar. Pujas iguales se repiten;
   tras tres coincidencias se habilita sorteo de piezas como último recurso.
 - Campeón **20**, subcampeón **12**; segundos de grupo **4** cada uno,
   terceros **2** cada uno, cuartos **1** cada uno. Total base: **46**.
@@ -85,12 +85,26 @@ Por categoría, con cuatro tableros y ambos grupos en paralelo:
 | --- | ---: |
 | Grupos (3 rondas de 5+0) | 30 min |
 | Final (dos partidas de 15+0) | 60 min |
-| Armagedón, si hace falta | 40 min |
-| Total de estas partidas | 130 min |
+| Armagedón, si hace falta | 30 min |
+| Total de estas partidas | 120 min |
 
 Con dos tableros y grupos sucesivos, la fase de grupos ocupa hasta 60 minutos.
 Agrega tiempo para preparación, pausas, pujas y posibles desempates de grupos.
-El cuadro indica tiempos de juego, no una duración máxima de toda la jornada.
+El cuadro indica tiempos máximos base. No incluye pausas ni los 30 segundos que el árbitro añade al jugador afectado por una jugada ilegal del rival. Con dos tableros, el total base sube a 150 minutos.
+
+## Relojes en secundaria
+
+Cada estudiante lleva su celular exclusivamente como reloj con **Chess Clock de Chess.com**.
+Se utiliza un celular por tablero: cuatro bastan para ocho jugadores; pedir los ocho aporta respaldo.
+La aplicación es gratuita y sin anuncios, disponible en Play Store y App Store.
+Antes de jugar, comprobar batería, pausa, edición del tiempo y ausencia de incremento.
+Si un jugador detecta una jugada ilegal del rival, pausa el reloj y llama al profesor.
+Si confirma la infracción, el árbitro añade 30 segundos al jugador afectado y reanuda la partida.
+
+La propuesta PDF incluye tiempos probables, máximos base y horarios de un solo día.
+El escenario requiere cuatro tableros para primaria y cuatro para secundaria; baja y alta
+comparten estos últimos en turnos sucesivos. El horario de primaria es provisional hasta
+acordar el ritmo de sus partidas y revanchas.
 
 ## Archivos y respaldos
 
@@ -98,7 +112,7 @@ El cuadro indica tiempos de juego, no una duración máxima de toda la jornada.
 - `arbitro-primaria.html` / `publico-primaria.html`: primaria.
 - `arbitro-secundaria.html?categoria=baja` / `publico-secundaria.html?categoria=baja`.
 - `arbitro-secundaria.html?categoria=alta` / `publico-secundaria.html?categoria=alta`.
-- `reglas-6887458a6755.js` / `style.css`: reglas compartidas y diseño del torneo.
+- `reglas-b4f3fcffe510.js` / `style.css`: reglas compartidas y diseño del torneo.
 - `manual.html`: guía visual del árbitro integrada en el sitio.
 - `Propuesta_Reestructuracion_Olimpiadas_Ajedrez.pdf`: propuesta actualizada.
 
