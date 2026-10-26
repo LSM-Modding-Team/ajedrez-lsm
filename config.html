@@ -17,7 +17,7 @@
 
 <main id="app"></main>
 
-<script src="reglas-6c822e5524a3.js"></script>
+<script src="reglas-24173c175c96.js"></script>
 <script>
 let setup = getSetup();
 
@@ -84,7 +84,7 @@ function renderDelegationBlock(mode, title, subtitle){
 function renderWeights(){
   const locked=!!setup.locked;
   return `<div class="panel"><h2>Multiplicadores de puntos</h2>
-    <div class="sub">Ajusta cuánto aporta cada categoría a las olimpiadas. Las tres categorías reparten 184 puntos base.</div>
+    <div class="sub">Ajusta cuánto aporta cada categoría a las olimpiadas. Las tres categorías reparten 152 puntos base.</div>
     <div class="grid4 weights-grid">${MODALITIES.map(m=>`<div class="colorcard" style="--c:var(--gold)">
       <div class="name">${m.label}</div>
       <div class="field"><label>Multiplicador olímpico</label><input type="number" min="0" step="any" ${locked?'disabled':''} value="${setup.weights[m.id]}" oninput="setup.weights['${m.id}']=this.value"></div>

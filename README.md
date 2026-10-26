@@ -84,7 +84,7 @@ llama al árbitro; si la confirma, este le añade 30 segundos y reanuda. Solo el
 
 ## Puestos y puntos
 
-Las tres categorías reparten 184 puntos base. Campeonato: 80 y 48.
+Las tres categorías reparten 152 puntos base. Campeonato: 64 y 32.
 
 | Puesto | Primaria | Secundaria baja | Secundaria alta |
 | --- | ---: | ---: | ---: |
@@ -96,7 +96,7 @@ Tablas en un cruce: promedio de los dos premios (16, 8 o 4 puntos cada uno).
 Los pares sin cruce comparten puesto y puntos. Aporte del color = suma de sus dos
 jugadores × multiplicador de la categoría, conservando decimales.
 Los resultados siguen provisionales mientras falte cualquier cruce; los de
-puestos pendientes muestran su promedio y los finalistas pendientes, 48 cada uno.
+puestos pendientes muestran su promedio y los finalistas pendientes, 32 cada uno.
 
 ## Horarios y asistencia
 

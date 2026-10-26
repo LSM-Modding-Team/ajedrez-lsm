@@ -16,7 +16,7 @@ const COLOR_META = {
   amarillo: {label:'Amarillo', hex:'#d7aa36'},
 };
 const PRIMARY_ROUND_MS = 20 * 60 * 1000;
-const PLACE_POINTS_PRIMARIA = {1:80, 2:48, 3:16, 4:16, 5:8, 6:8, 7:4, 8:4};
+const PLACE_POINTS_PRIMARIA = {1:64, 2:32, 3:16, 4:16, 5:8, 6:8, 7:4, 8:4};
 
 // Secundaria: patrón de blancas/negras para las 6 partidas de la fase de grupos ([blancas, negras] por slot).
 // Los participantes A (Bx internos) juegan 2 con negras y 1 con blancas; los B (Mx), al revés.
@@ -26,7 +26,7 @@ const PLACE_POINTS_PRIMARIA = {1:80, 2:48, 3:16, 4:16, 5:8, 6:8, 7:4, 8:4};
 // jugadores del grupo a la vez (0 y 1 no comparten jugador, ídem 2-3 y 4-5), así ambos tableros
 // arrancan y terminan juntos y nadie se queda esperando su siguiente partida.
 const PAIR_TEMPLATE = [ ['B1','B2'], ['M1','M2'], ['M1','B1'], ['M2','B2'], ['M2','B1'], ['B2','M1'] ];
-const PLACE_POINTS_SECUNDARIA = {1:80, 2:48, 3:20, 4:12, 5:10, 6:6, 7:5, 8:3};
+const PLACE_POINTS_SECUNDARIA = {1:64, 2:32, 3:20, 4:12, 5:10, 6:6, 7:5, 8:3};
 
 /* ============================= ALMACENAMIENTO ============================= */
 const MODALITIES = [
@@ -105,7 +105,7 @@ function saveSetup(setup){
 }
 
 // Puntaje = puntos por puesto × ajuste de reparto × escala olímpica configurable.
-// Las tres categorías reparten 184 puntos base; solo se aplica su escala olímpica.
+// Las tres categorías reparten 152 puntos base; solo se aplica su escala olímpica.
 function modalityWeight(mode){
   const setup = getSetup();
   const w = Number(setup.weights[mode]);
@@ -485,8 +485,8 @@ function placementRowsS(S){
   const oa=groupOrderS(S,'A'),ob=groupOrderS(S,'B'),rows=[];
   const add=(place,label,players,points,provisional=false)=>rows.push({place,label,players,points,provisional});
   const a=oa[0],b=ob[0],winner=S.final&&matchWinnerS(S.final);
-  if(winner){add(1,'1.º',[winner],80);add(2,'2.º',[winner===a?b:a],48);}
-  else add(2,'1.º–2.º',[a,b],48,true);
+  if(winner){add(1,'1.º',[winner],64);add(2,'2.º',[winner===a?b:a],32);}
+  else add(2,'1.º–2.º',[a,b],32,true);
   [3,5,7].forEach((place,i)=>{
     const players=[oa[i+1],ob[i+1]];
     if(!placementPlacesS(S).includes(place)){add(place,`${place}.º–${place+1}.º`,players,PLACE_POINTS_PRIMARIA[place]);return;}
