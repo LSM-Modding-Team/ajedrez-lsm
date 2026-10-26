@@ -130,8 +130,8 @@ function render(){
   <div class="public-layout">
     <div class="bracket-wrap" id="bracketWrap">
       <div class="public-finals-grid">
-        <div class="public-match championship"><div class="bkt-roundlabel">Final · 1.º A vs 1.º B · dos partidas 15+0</div>${bktBoxS('mb-final',finalSlot)}</div>
-        ${placementPlacesS(S).map(place=>`<div class="public-match"><div class="bkt-roundlabel">${place}.º–${place+1}.º · una partida 15+0</div>${bktBoxS('mb-'+place,S.placementMatches?.[place])}<div class="cross-prizes">${formatPoints(PLACE_POINTS_SECUNDARIA[place])} / ${formatPoints(PLACE_POINTS_SECUNDARIA[place+1])} puntos · tablas: ${formatPoints(pairAverageS(place))} cada uno</div></div>`).join('')}
+        <div class="public-match championship"><div class="bkt-roundlabel">Final</div>${bktBoxS('mb-final',finalSlot)}</div>
+        ${placementPlacesS(S).map(place=>`<div class="public-match"><div class="bkt-roundlabel">${place}.º–${place+1}.º</div>${bktBoxS('mb-'+place,S.placementMatches?.[place])}</div>`).join('')}
       </div>
     </div>
     <div class="public-sidebar">
