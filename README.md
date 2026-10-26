@@ -46,7 +46,7 @@ victorias, conducta y B/B efectivo, sin enfrentamiento directo entre grupos.
 
 Armagedón: puja secreta de 0 a 15 minutos, precisión de un segundo, sin incremento.
 La puja menor obtiene negras con ese tiempo y gana con tablas. Blancas recibe
-15 minutos y debe ganar. Pujas iguales se repiten; tras tres, se habilita sorteo.
+15 minutos y debe ganar. Pujas iguales se repiten hasta obtener tiempos distintos.
 
 ## Primaria
 

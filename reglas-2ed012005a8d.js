@@ -220,12 +220,6 @@ function registerArmageddonBid(match, maxSeconds, n1, n2){
   else A.resolvedColors = {blackPid:match.p2, whitePid:match.p1, blackSeconds:n2};
   return {tie:false};
 }
-function randomArmageddonColors(match){
-  const A = match.armageddon;
-  const sharedTime = A.bid1 ?? Math.floor(A.maxSeconds/2);
-  if(Math.random()<0.5) A.resolvedColors = {blackPid:match.p1, whitePid:match.p2, blackSeconds: sharedTime||60};
-  else A.resolvedColors = {blackPid:match.p2, whitePid:match.p1, blackSeconds: sharedTime||60};
-}
 function setArmageddonWinner(match, winnerPid){
   match.armageddon.winnerPid = winnerPid;
 }

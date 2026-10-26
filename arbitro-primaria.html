@@ -32,7 +32,7 @@
   </details>
 </footer>
 
-<script src="reglas-24173c175c96.js"></script>
+<script src="reglas-2ed012005a8d.js"></script>
 <script>
 const MODE='primaria';
 const CATEGORY=modalityMeta(MODE);
@@ -97,7 +97,6 @@ function armaRegisterBid(key, maxSeconds){
   registerArmageddonBid(m, maxSeconds, n1, n2);
   save();
 }
-function armaRandom(key){ randomArmageddonColors(armaKeyMatch(key)); save(); }
 function armaSetWinner(key, winnerPid){ setArmageddonWinner(armaKeyMatch(key), winnerPid); autoAdvanceS(S); save(); }
 
 /* ---- Export/import ---- */
@@ -289,7 +288,6 @@ function renderArmageddon(key, match, maxSeconds){
       </div>
       <div class="note">Máximo permitido: ${Math.floor(maxSeconds/60)}:00.</div>
       ${A.attempts>0?`<div class="warn">Pujas iguales (${A.attempts} ${A.attempts===1?'intento':'intentos'}) — deben repetir la puja.
-        ${A.attempts>=3?`<div class="rowbtns"><button class="btn small ghost" onclick="armaRandom('${key}')">Definir al azar (último recurso)</button></div>`:''}
       </div>`:''}
     </div>`;
   }
