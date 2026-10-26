@@ -32,7 +32,7 @@
   </details>
 </footer>
 
-<script src="reglas-3c79539c1aa5.js"></script>
+<script src="reglas-6c822e5524a3.js"></script>
 <script>
 const MODE=SECONDARY_MODE;
 const CATEGORY=modalityMeta(MODE);
@@ -53,7 +53,7 @@ const TABS = [
 function save(){ saveSecundaria(S); render(); }
 
 /* ---- Sorteo y grupos ---- */
-function shuffleSeedUI(){ S.seedOrder = shuffleSeedArr(); render(); }
+function shuffleSeedUI(){ S.seedOrder = shuffleSeedArr(MODE); render(); }
 function confirmGroupsUI(){ if(confirmGroupsS(S)){ tab='grupos'; save(); } }
 function resetGroupsUI(){
   if(!confirm('Esto borra los grupos y todos los resultados de esta categoría. ¿Continuar?')) return;

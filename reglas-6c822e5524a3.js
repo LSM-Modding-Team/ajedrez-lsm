@@ -196,12 +196,13 @@ function chip(p, mode='primaria'){
   return `<span class="chip"><span class="dot" style="--c:${COLOR_META[c].hex}"></span>${playerName(p, mode)}</span>`;
 }
 
-function shuffleSeedArr(){
+function shuffleSeedArr(mode){
   const arr = [...COLORS];
   for(let i=arr.length-1;i>0;i--){
     const j = Math.floor(Math.random()*(i+1));
     [arr[i],arr[j]]=[arr[j],arr[i]];
   }
+  if(mode==='secundaria_alta' && (arr.indexOf('verde')<2)===(arr.indexOf('rojo')<2)) return shuffleSeedArr(mode);
   return arr;
 }
 function ensureArmageddon(match, maxSeconds=ARMAGEDDON_MAX_SECONDS){
