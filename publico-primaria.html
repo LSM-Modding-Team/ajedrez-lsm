@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Olimpiadas de ajedrez — Primaria</title>
-<link rel="stylesheet" href="style.css?v=7bffda414e56">
+<link rel="stylesheet" href="style.css?v=7a0b853b740f">
 </head>
 <body class="page-publico-secundaria">
 <div class="sitebar"><a class="event-brand" href="index.html" aria-label="Olimpiadas escolares, inicio"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 7h5v5h5V7h5v5h5V7h5v12h-4l-2 12h6v4H8v-4h6l-2-12H8Z" fill="currentColor"/></svg><span>OLIMPIADAS<span>ESCOLARES / AJEDREZ</span></span></a><nav aria-label="Navegación principal"><a href="index.html">Torneos</a><a href="config.html">Configuración</a><a href="manual.html">Guía del árbitro</a></nav></div>
@@ -16,7 +16,7 @@
 
 <main class="wide" id="app"></main>
 
-<script src="reglas-86746d54d495.js"></script>
+<script src="reglas-3c79539c1aa5.js"></script>
 <script>
 const MODE='primaria';
 const CATEGORY=modalityMeta(MODE);
@@ -95,7 +95,7 @@ function renderColorPoints(){
   const placements = computePlacementsS(S);
   const colorTotals = Object.fromEntries(COLORS.map(c=>[c,0]));
   if(placements){
-    Object.entries(placements).forEach(([p,place])=>{ colorTotals[pidColor(p)] += PLACE_POINTS_SECUNDARIA[place]||0; });
+    Object.entries(placements).forEach(([p,place])=>{ colorTotals[pidColor(p)] += PLACE_POINTS_PRIMARIA[place]||0; });
   }
   const weight = modalityWeight(MODE);
   COLORS.forEach(c=>{ colorTotals[c] = scaledPoints(colorTotals[c], MODE); });

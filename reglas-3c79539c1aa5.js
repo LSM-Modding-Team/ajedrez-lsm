@@ -16,7 +16,7 @@ const COLOR_META = {
   amarillo: {label:'Amarillo', hex:'#d7aa36'},
 };
 const PRIMARY_ROUND_MS = 20 * 60 * 1000;
-const PLACE_POINTS_PRIMARIA = {1:20, 2:12, 3:4, 4:4, 5:2, 6:2, 7:1, 8:1};
+const PLACE_POINTS_PRIMARIA = {1:80, 2:48, 3:16, 4:16, 5:8, 6:8, 7:4, 8:4};
 
 // Secundaria: patrón de blancas/negras para las 6 partidas de la fase de grupos ([blancas, negras] por slot).
 // Los participantes A (Bx internos) juegan 2 con negras y 1 con blancas; los B (Mx), al revés.
@@ -26,7 +26,7 @@ const PLACE_POINTS_PRIMARIA = {1:20, 2:12, 3:4, 4:4, 5:2, 6:2, 7:1, 8:1};
 // jugadores del grupo a la vez (0 y 1 no comparten jugador, ídem 2-3 y 4-5), así ambos tableros
 // arrancan y terminan juntos y nadie se queda esperando su siguiente partida.
 const PAIR_TEMPLATE = [ ['B1','B2'], ['M1','M2'], ['M1','B1'], ['M2','B2'], ['M2','B1'], ['B2','M1'] ];
-const PLACE_POINTS_SECUNDARIA = {1:20, 2:12, 3:4, 4:4, 5:2, 6:2, 7:1, 8:1};
+const PLACE_POINTS_SECUNDARIA = {1:80, 2:48, 3:20, 4:12, 5:10, 6:6, 7:5, 8:3};
 
 /* ============================= ALMACENAMIENTO ============================= */
 const MODALITIES = [
@@ -105,7 +105,7 @@ function saveSetup(setup){
 }
 
 // Puntaje = puntos por puesto × ajuste de reparto × escala olímpica configurable.
-// Las tres categorías reparten 46 puntos base; solo se aplica su escala olímpica.
+// Las tres categorías reparten 184 puntos base; solo se aplica su escala olímpica.
 function modalityWeight(mode){
   const setup = getSetup();
   const w = Number(setup.weights[mode]);
@@ -149,6 +149,7 @@ function freshSecundaria(mode=SECONDARY_MODE){
     groupGames: null,    // {A:[{white,black,result}], B:[...]}
     manualOverride: {},  // pid -> numero (mayor = gana desempate manual)
     final: null,
+    placementMatches: {},
   };
 }
 function getSecundaria(mode=SECONDARY_MODE){
@@ -257,6 +258,8 @@ function confirmGroupsS(S){
   S.groupGames = { A: buildGames(groupA), B: buildGames(groupB) };
   S.manualOverride = {};
   S.final = null;
+  S.placementMatches = {};
+  S.colorChoiceOverride = {};
   return true;
 }
 
@@ -442,31 +445,69 @@ function matchWinnerS(match){
   if(t.played < match.games.length) return null;
   if(t.s1>t.s2) return match.p1;
   if(t.s2>t.s1) return match.p2;
-  if(match.armageddon && match.armageddon.winnerPid) return match.armageddon.winnerPid;
+  if(match.games.length===2 && match.armageddon && match.armageddon.winnerPid) return match.armageddon.winnerPid;
   return null;
 }
 function needsArmageddonS(match){
-  if(!match.colorChoice) return false;
+  if(!match.colorChoice || match.games.length!==2) return false;
   const t = matchTallyS(match);
   return t.played===match.games.length && t.s1===t.s2;
 }
 // Comparación entre líderes: puntos, SB, victorias, conducta y B efectivo. Sin enfrentamiento directo.
-function finalColorRankingS(S){
-  const pids=[groupLeaderS(S,'A'),groupLeaderS(S,'B')];
+function finalColorRankingS(S, match=S.final){
+  const pids=match ? [match.p1,match.p2] : [groupLeaderS(S,'A'),groupLeaderS(S,'B')];
   if(pids.some(p=>!p)) return {order:[],unresolved:[]};
   const cs=combinedStatsS(S), unresolved=[];
-  const order=rankPlayers(pids,[],p=>cs.points[p],p=>cs.sb[p],p=>cs.wins[p],conductRankKeyS,p=>S.colorChoiceOverride?.[p]||0,unresolved);
+  const order=rankPlayers(pids,[],p=>cs.points[p],p=>cs.sb[p],p=>cs.wins[p],conductRankKeyS,p=>(match?.colorChoiceOverride || (match===S.final?S.colorChoiceOverride:null))?.[p]||0,unresolved);
   return {order,unresolved};
 }
-function finalColorChooserS(S){
-  const ranking=finalColorRankingS(S);
+function finalColorChooserS(S,match=S.final){
+  const ranking=finalColorRankingS(S,match);
   return ranking.unresolved.length ? null : ranking.order[0]||null;
 }
 function placementLabelS(place){ return place>=3 ? `${place}.º-${place+1}.º` : `${place}.º`; }
-function placementTiersS(S){
-  const places=computePlacementsS(S);
-  if(!places) return [];
-  return [1,2,3,5,7].map(place=>({place,players:Object.keys(places).filter(p=>places[p]===place)})).filter(t=>t.players.length);
+function placementTiersS(S){ return placementRowsS(S); }
+function placementPlacesS(S){ return S.category==='secundaria_alta'?[3,5,7]:S.category==='secundaria_baja'?[3]:[]; }
+function groupPositionS(S,g,index){
+  if(!S.groups || !groupCompleteS(S,g)) return null;
+  const r=groupRankingS(S,g),p=r.order[index];
+  return r.unresolved.some(t=>t.includes(p))?null:p;
+}
+function matchCompleteS(match){
+  return !!match?.colorChoice && match.games.every(g=>g.result) && (match.games.length===1 || !!matchWinnerS(match));
+}
+function tournamentCompleteS(S){ return !!S.final && matchCompleteS(S.final) && placementPlacesS(S).every(p=>matchCompleteS(S.placementMatches?.[p])); }
+function pairAverageS(place){return (PLACE_POINTS_SECUNDARIA[place]+PLACE_POINTS_SECUNDARIA[place+1])/2;}
+function placementRowsS(S){
+  if(!S.groups || !['A','B'].every(g=>groupCompleteS(S,g))) return [];
+  if(['A','B'].some(g=>groupRankingS(S,g).unresolved.length)) return [];
+  const oa=groupOrderS(S,'A'),ob=groupOrderS(S,'B'),rows=[];
+  const add=(place,label,players,points,provisional=false)=>rows.push({place,label,players,points,provisional});
+  const a=oa[0],b=ob[0],winner=S.final&&matchWinnerS(S.final);
+  if(winner){add(1,'1.º',[winner],80);add(2,'2.º',[winner===a?b:a],48);}
+  else add(2,'1.º–2.º',[a,b],48,true);
+  [3,5,7].forEach((place,i)=>{
+    const players=[oa[i+1],ob[i+1]];
+    if(!placementPlacesS(S).includes(place)){add(place,`${place}.º–${place+1}.º`,players,PLACE_POINTS_PRIMARIA[place]);return;}
+    const match=S.placementMatches?.[place],w=match&&matchWinnerS(match);
+    if(w){add(place,`${place}.º`,[w],PLACE_POINTS_SECUNDARIA[place]);add(place+1,`${place+1}.º`,[players.find(p=>p!==w)],PLACE_POINTS_SECUNDARIA[place+1]);}
+    else add(place,`${place}.º–${place+1}.º`,players,pairAverageS(place),!matchCompleteS(match));
+  });
+  return rows;
+}
+function playerPointsS(S,p){return placementRowsS(S).find(r=>r.players.includes(p))?.points||0;}
+function colorPointsS(S){
+  const totals=Object.fromEntries(COLORS.map(c=>[c,0]));
+  for(const row of placementRowsS(S))for(const p of row.players)totals[pidColor(p)]+=row.points;
+  return Object.fromEntries(COLORS.map(c=>[c,scaledPoints(totals[c],S.category)]));
+}
+function validTournamentS(S,mode){
+  const validPid=p=>typeof p==='string' && COLORS.includes(pidColor(p)) && ['bueno','malo'].includes(pidRole(p));
+  const validMatch=(m,n)=>m && validPid(m.p1) && validPid(m.p2) && m.p1!==m.p2 && Array.isArray(m.games) && m.games.length===n && m.games.every(g=>g && [null,'','white','black','draw'].includes(g.result)) && [null,'p1-white','p1-black'].includes(m.colorChoice);
+  return S?.category===mode && Array.isArray(S.seedOrder) && S.seedOrder.length===4 && S.manualOverride && typeof S.manualOverride==='object'
+    && (!S.groups || ['A','B'].every(g=>Array.isArray(S.groups[g]) && S.groups[g].length===4 && S.groups[g].every(p=>p && validPid(p.pid)) && new Set(S.groups[g].map(p=>p.pid)).size===4 && Array.isArray(S.groupGames?.[g]) && S.groupGames[g].length===6 && S.groupGames[g].every(game=>game && game.white!==game.black && [game.white,game.black].every(p=>S.groups[g].some(x=>x.pid===p)) && ['white','black','draw',null,''].includes(game.result))))
+    && (!S.final || validMatch(S.final,2))
+    && (!S.placementMatches || (typeof S.placementMatches==='object' && !Array.isArray(S.placementMatches) && Object.entries(S.placementMatches).every(([p,m])=>placementPlacesS(S).includes(Number(p)) && m.place===Number(p) && validMatch(m,1))));
 }
 function generateFinalS(S){
   const p1=groupLeaderS(S,'A'), p2=groupLeaderS(S,'B');
@@ -476,10 +517,18 @@ function generateFinalS(S){
 }
 // Al corregir grupos, no se conservan resultados de una final con otros participantes.
 function autoAdvanceS(S){
-  if(!S.groups){ S.final=null; return; }
+  S.placementMatches ||= {};
+  if(!S.groups){ S.final=null; S.placementMatches={}; return; }
   const p1=groupLeaderS(S,'A'), p2=groupLeaderS(S,'B');
-  if(!p1 || !p2){ S.final=null; return; }
-  if(!S.final || S.final.p1!==p1 || S.final.p2!==p2){ S.colorChoiceOverride={}; generateFinalS(S); }
+  if(!p1 || !p2){S.final=null; S.colorChoiceOverride={};}
+  else if(!S.final || S.final.p1!==p1 || S.final.p2!==p2){ S.colorChoiceOverride={}; generateFinalS(S); }
+  const allowed=placementPlacesS(S);
+  for(const place of Object.keys(S.placementMatches))if(!allowed.includes(Number(place)))delete S.placementMatches[place];
+  for(const place of allowed){
+    const index=(place-1)/2,a=groupPositionS(S,'A',index),b=groupPositionS(S,'B',index),old=S.placementMatches[place];
+    if(!a || !b){delete S.placementMatches[place];continue;}
+    if(!old || old.p1!==a || old.p2!==b)S.placementMatches[place]={p1:a,p2:b,place,colorChoice:null,colorChoiceOverride:{},games:[{result:null}]};
+  }
 }
 function provisionalFinalS(S){
   if(S.final) return S.final;
@@ -489,17 +538,6 @@ function provisionalFinalS(S){
 
 /* ============================= SECUNDARIA: PUNTOS OLIMPIADA ============================= */
 function computePlacementsS(S){
-  if(!S.groups || !groupCompleteS(S,'A') || !groupCompleteS(S,'B')) return null;
-  const oa=groupOrderS(S,'A'), ob=groupOrderS(S,'B');
-  const placements={};
-  [1,2,3].forEach((position,i)=>[oa[position],ob[position]].forEach(p=>placements[p]=3+2*i));
-  const a=groupLeaderS(S,'A'), b=groupLeaderS(S,'B');
-  if(!a || !b) return null;
-  if(S.final){
-    const winner=matchWinnerS(S.final);
-    if(winner){ placements[winner]=1; placements[winner===a?b:a]=2; }
-    else { placements[a]=2; placements[b]=2; }
-  } else { placements[a]=2; placements[b]=2; }
-  return placements;
+  const rows=placementRowsS(S);if(!rows.length)return null;
+  return Object.fromEntries(rows.flatMap(r=>r.players.map(p=>[p,r.place])));
 }
-

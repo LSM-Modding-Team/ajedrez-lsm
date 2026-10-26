@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel del árbitro — Secundaria</title>
-<link rel="stylesheet" href="style.css?v=7bffda414e56">
+<link rel="stylesheet" href="style.css?v=7a0b853b740f">
 </head>
 <body class="page-control page-arbitro-secundaria">
 <div class="sitebar"><a class="event-brand" href="index.html" aria-label="Olimpiadas escolares, inicio"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 7h5v5h5V7h5v5h5V7h5v12h-4l-2 12h6v4H8v-4h6l-2-12H8Z" fill="currentColor"/></svg><span>OLIMPIADAS<span>ESCOLARES / AJEDREZ</span></span></a><nav aria-label="Navegación principal"><a href="index.html">Torneos</a><a href="config.html">Configuración</a><a href="manual.html">Guía del árbitro</a></nav></div>
@@ -32,7 +32,7 @@
   </details>
 </footer>
 
-<script src="reglas-86746d54d495.js"></script>
+<script src="reglas-3c79539c1aa5.js"></script>
 <script>
 const MODE=SECONDARY_MODE;
 const CATEGORY=modalityMeta(MODE);
@@ -46,7 +46,7 @@ const TABS = [
   {id:'sorteo', label:'1 · Sorteo'},
   {id:'grupos', label:'2 · Grupos'},
   {id:'clasif', label:'3 · Clasificación'},
-  {id:'final', label:'4 · Final'},
+  {id:'final', label:'4 · Final y puestos'},
   {id:'puntos', label:'5 · Puntos olimpiada'},
 ];
 
@@ -68,12 +68,14 @@ function onGroupResult(g, idx, value){
 function onOverrideWinner(p, otherP){ setOverrideWinnerS(S, p, otherP); autoAdvanceS(S); save(); }
 
 /* ---- Final ---- */
+function placementMatch(key){ return key==='FINAL'?S.final:S.placementMatches?.[key]; }
+function onColorPriority(key,p){const m=placementMatch(key);m.colorChoiceOverride={[p]:1};save();}
 function onChooseColor(which, choice){
-  const match = S.final;
+  const match = placementMatch(which);
   match.colorChoice = choice; save();
 }
 function onSMatchResult(which, idx, value){
-  const match = S.final;
+  const match = placementMatch(which);
   match.games[idx].result = value || null;
   match.armageddon=null;
   autoAdvanceS(S);
@@ -106,9 +108,7 @@ function importState(){
   try{
     const imported=JSON.parse(document.getElementById('dataBox').value);
     if(imported.category!==MODE) throw new Error('La copia no corresponde a '+CATEGORY.label+'.');
-    if(!Array.isArray(imported.seedOrder) || imported.seedOrder.length!==4 || !imported.manualOverride ||
-       (imported.groups && !['A','B'].every(g=>Array.isArray(imported.groups[g]) && imported.groups[g].length===4 && Array.isArray(imported.groupGames?.[g]) && imported.groupGames[g].length===6)) ||
-       (imported.final && (!Array.isArray(imported.final.games) || imported.final.games.length!==2))) throw new Error('Estructura de torneo inválida.');
+    if(!validTournamentS(imported,MODE)) throw new Error('Estructura de torneo inválida.');
     S=imported; autoAdvanceS(S); save();
   }
   catch(e){ alert('JSON inválido: '+e.message); }
@@ -160,7 +160,7 @@ function renderSorteo(){
   return renderSetupBanner() + `
   <div class="panel">
     <h2>Sorteo de grupos</h2>
-    <div class="sub">Primero de cada grupo → final.</div>
+    <div class="sub">Líderes → final. Segundos → 3.º–4.º. ${MODE==='secundaria_alta'?'Terceros y cuartos también disputan sus puestos.':'Terceros y cuartos comparten sus puestos.'}</div>
     <div class="grid4">
       ${[0,1,2,3].map(i=>`
         <div class="field">
@@ -232,9 +232,10 @@ function renderStandingsTable(g){
   </div>`;
 }
 function renderCrossTiers(){
-  const oa=groupOrderS(S,'A'),ob=groupOrderS(S,'B');
-  return `<div class="panel"><h2>Puestos compartidos</h2>${[1,2,3].map((position,i)=>`
-    <div class="placement-tier"><b>${3+2*i}.º-${4+2*i}.º</b><div>${chip(oa[position],MODE)} ${chip(ob[position],MODE)}</div><span>${[4,2,1][i]} puntos por jugador</span></div>`).join('')}</div>`;
+  return `<div class="panel"><h2>Después de los grupos</h2><div class="sub">Los cruces se juegan en paralelo con la primera partida de la final.</div>${[3,5,7].map((place,i)=>{
+    const a=groupPositionS(S,'A',i+1),b=groupPositionS(S,'B',i+1),play=placementPlacesS(S).includes(place);
+    return `<div class="placement-tier"><b>${place}.º–${place+1}.º</b><div>${a?chip(a,MODE):'Por definir'} ${b?chip(b,MODE):'Por definir'}</div><span>${play?'Una partida 15+0 · tablas: '+formatPoints(pairAverageS(place))+' puntos cada uno':'Puesto compartido · '+PLACE_POINTS_PRIMARIA[place]+' puntos cada uno'}</span></div>`;
+  }).join('')}</div>`;
 }
 function renderClasif(){
   if(!S.groups) return `<div class="panel"><div class="warn">Aún no hay grupos confirmados.</div></div>`;
@@ -295,11 +296,11 @@ function renderArmageddon(key, match, maxSeconds){
 
 function renderMatchCard(title, key, match, opts){
   opts = opts||{};
-  const chooser=finalColorChooserS(S);
+  const chooser=finalColorChooserS(S,match);
   const choiceFor=white=>((chooser===match.p1)===white)?'p1-white':'p1-black';
   const t = matchTallyS(match);
   const winner = matchWinnerS(match);
-  const done = !!winner;
+  const done = matchCompleteS(match);
   return `
   <div class="matchcard">
     <h3>${title}</h3>
@@ -308,7 +309,7 @@ function renderMatchCard(title, key, match, opts){
       <div class="rowbtns">
         <button class="btn small" onclick="onChooseColor('${key}','${choiceFor(true)}')">${playerName(chooser,MODE)} juega con blancas</button>
         <button class="btn small" onclick="onChooseColor('${key}','${choiceFor(false)}')">${playerName(chooser,MODE)} juega con negras</button>
-      </div>` : `<div class="warn">Empate total entre finalistas. Elige el B efectivo: menor grado; a igual grado, quien nació después. Indica quién cumple el criterio.</div><div class="rowbtns">${[match.p1,match.p2].map(p=>`<button class="btn small" onclick="S.colorChoiceOverride={'${p}':1};save()">B efectivo: ${playerName(p,MODE)}</button>`).join('')}</div>`}
+      </div>` : `<div class="warn">Empate total entre los jugadores. Elige el B efectivo: menor grado; a igual grado, quien nació después. Indica quién cumple el criterio.</div><div class="rowbtns">${[match.p1,match.p2].map(p=>`<button class="btn small" onclick="onColorPriority('${key}','${p}')">B efectivo: ${playerName(p,MODE)}</button>`).join('')}</div>`}
     `:`
       <div class="vs">
         <div class="side ${done&&winner===match.p1?'winner':''}">${chip(match.p1,MODE)}</div>
@@ -330,7 +331,7 @@ function renderMatchCard(title, key, match, opts){
         </div>`;
       }).join('')}
       ${!done && needsArmageddonS(match) ? renderArmageddon(key, match, opts.maxSeconds) : ''}
-      ${done?`<div class="note" style="margin-top:8px">Campeón: <b>${playerName(winner,MODE)}</b></div>`:''}
+      ${done?`<div class="note" style="margin-top:8px">${key==='FINAL'?'Campeón: <b>'+playerName(winner,MODE)+'</b>':winner?playerName(winner,MODE)+' obtiene el '+match.place+'.º puesto ('+formatPoints(PLACE_POINTS_SECUNDARIA[match.place])+' puntos).':'Tablas: comparten '+match.place+'.º–'+(match.place+1)+'.º, con '+formatPoints(pairAverageS(match.place))+' puntos cada uno.'}</div>`:''}
     `}
   </div>`;
 }
@@ -351,28 +352,29 @@ function renderProvisionalCard(title, prov){
 }
 
 function renderFinal(){
-  const rules='<div class="panel"><h2>Final · 1.º Grupo A vs 1.º Grupo B</h2><div class="sub">Dos partidas de 15+0, alternando piezas. Empate 1-1 → Armagedón directo (puja hasta 15 minutos).</div><div class="note">Hasta 60 minutos de juego; con Armagedón, hasta 90, sin pausas ni bonificaciones por jugadas ilegales.</div></div>';
-  if(!S.final) return rules+renderProvisionalCard('Gran Final',provisionalFinalS(S));
-  return rules+renderMatchCard('Gran Final','FINAL',S.final,{maxSeconds:ARMAGEDDON_MAX_SECONDS});
+  const rules=`<div class="panel"><h2>Final y definición de puestos</h2><p>Final: dos partidas de 15+0, alternando piezas; 1–1 lleva a Armagedón. Los demás cruces son una sola partida de 15+0: si hay tablas, comparten puesto y reciben el promedio de los premios.</p><div class="note">En cada cruce elige color quien tuvo mejor desempeño en grupos: puntos, SB, victorias, conducta y B/B efectivo. Jueguen todos los cruces simultáneamente.</div></div>`;
+  let html=rules+(S.final?renderMatchCard('Final · campeonato','FINAL',S.final,{maxSeconds:ARMAGEDDON_MAX_SECONDS}):renderProvisionalCard('Final · campeonato',provisionalFinalS(S)));
+  for(const place of placementPlacesS(S)){
+    const match=S.placementMatches?.[place];
+    html+=match?renderMatchCard(`${place}.º–${place+1}.º · ${formatPoints(PLACE_POINTS_SECUNDARIA[place])} / ${formatPoints(PLACE_POINTS_SECUNDARIA[place+1])} puntos`,String(place),match):renderProvisionalCard(`${place}.º–${place+1}.º · una partida 15+0`,null);
+  }
+  return html;
 }
 
 function renderPuntos(){
   const placements = computePlacementsS(S);
   if(!placements) return `<div class="panel"><div class="warn">Completa al menos la fase de grupos para ver el reparto de puntos.</div></div>`;
-  const rows = Object.entries(placements).sort((a,b)=>a[1]-b[1]);
-  const colorTotals = Object.fromEntries(COLORS.map(c=>[c,0]));
-  rows.forEach(([p,place])=>{ colorTotals[pidColor(p)] += PLACE_POINTS_SECUNDARIA[place]||0; });
+  const colorTotals = colorPointsS(S);
   const weight = modalityWeight(MODE);
-  COLORS.forEach(c=>{ colorTotals[c] = scaledPoints(colorTotals[c], MODE); });
   const maxTotal = Math.max(1,...Object.values(colorTotals));
   const colorRanked = COLORS.slice().sort((a,b)=>colorTotals[b]-colorTotals[a]);
   return `<div class="group-columns">
   <div class="panel">
     <h2>Puestos y puntos</h2>
-    <div class="sub">${!S.final?'Los puestos 1º–2º son provisionales hasta jugar la final.':(!matchWinnerS(S.final)?'Los puestos 1º–2º son provisionales hasta terminar la final.':'')}</div>
+    <div class="sub">${tournamentCompleteS(S)?'Resultados definitivos.':'Provisional: faltan partidas por resolver.'}</div>
     <table class="pts-table">
       <tr><th>Puesto</th><th>Jugador</th><th class="num">Puntos</th></tr>
-      ${placementTiersS(S).map(t=>`<tr><td class="pos">${placementLabelS(t.place)}</td><td>${t.players.map(p=>chip(p,MODE)).join(' ')}</td><td class="num mono">${PLACE_POINTS_SECUNDARIA[t.place]}${t.players.length>1?' cada uno':''}</td></tr>`).join('')}
+      ${placementTiersS(S).map(t=>`<tr><td class="pos">${t.label}${t.provisional?' *':''}</td><td>${t.players.map(p=>chip(p,MODE)).join(' ')}</td><td class="num mono">${formatPoints(t.points)}${t.players.length>1?' cada uno':''}</td></tr>`).join('')}
 
     </table>
   </div>

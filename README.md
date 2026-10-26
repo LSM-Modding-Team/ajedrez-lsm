@@ -35,10 +35,14 @@ penalizaciones y prioridad B. Entre jugadores del mismo rol, B efectivo es menor
 grado y luego fecha de nacimiento más reciente; el árbitro registra quién lo es.
 No se juegan partidas adicionales de grupo.
 
-Solo los líderes pasan a una final de dos partidas 15+0 por jugador, alternando
-piezas. Elige color inicial quien tenga mejor desempeño en grupos: puntos, SB,
-victorias, conducta y B/B efectivo; sin enfrentamiento directo entre grupos.
-Empate 1-1, incluidas dos tablas: Armagedón directo. Los demás puestos se comparten según la clasificación de grupos.
+Los líderes disputan el campeonato: dos partidas 15+0, alternando piezas; empate
+1-1 lleva a Armagedón. En secundaria baja, los segundos disputan 3.º-4.º.
+En alta también juegan terceros por 5.º-6.º y cuartos por 7.º-8.º.
+Los cruces de puestos son una partida 15+0: ganador al puesto superior; tablas
+comparten el par y cada uno recibe el promedio de los premios. No hay Armagedón
+en estos cruces. Primaria solo disputa el campeonato después de grupos.
+En cada encuentro elige color quien tuvo mejor desempeño de grupo: puntos, SB,
+victorias, conducta y B/B efectivo, sin enfrentamiento directo entre grupos.
 
 Armagedón: puja secreta de 0 a 15 minutos, precisión de un segundo, sin incremento.
 La puja menor obtiene negras con ese tiempo y gana con tablas. Blancas recibe
@@ -80,20 +84,19 @@ llama al árbitro; si la confirma, este le añade 30 segundos y reanuda. Solo el
 
 ## Puestos y puntos
 
-Las tres categorías reparten 46 puntos base:
+Las tres categorías reparten 184 puntos base. Campeonato: 80 y 48.
 
-| Puesto | Puntos |
-| --- | ---: |
-| Campeón | 20 |
-| Subcampeón | 12 |
-| 3.º-4.º: segundos de grupo | 4 cada uno |
-| 5.º-6.º: terceros de grupo | 2 cada uno |
-| 7.º-8.º: cuartos de grupo | 1 cada uno |
+| Puesto | Primaria | Secundaria baja | Secundaria alta |
+| --- | ---: | ---: | ---: |
+| 3.º / 4.º | 16 cada uno | 20 / 12 | 20 / 12 |
+| 5.º / 6.º | 8 cada uno | 8 cada uno | 10 / 6 |
+| 7.º / 8.º | 4 cada uno | 4 cada uno | 5 / 3 |
 
-No se desempata dentro de un par. Puntos del color = suma de sus dos jugadores
-× multiplicador olímpico de su categoría. Cada categoría reparte 46 puntos base.
-Se conservan decimales. Hasta resolver la final, sus participantes figuran
-provisionalmente con los puntos de subcampeón.
+Tablas en un cruce: promedio de los dos premios (16, 8 o 4 puntos cada uno).
+Los pares sin cruce comparten puesto y puntos. Aporte del color = suma de sus dos
+jugadores × multiplicador de la categoría, conservando decimales.
+Los resultados siguen provisionales mientras falte cualquier cruce; los de
+puestos pendientes muestran su promedio y los finalistas pendientes, 48 cada uno.
 
 ## Horarios y asistencia
 
@@ -102,8 +105,10 @@ La propuesta distingue tiempos probables y máximos base. Sus horarios represent
 el peor caso previsto, con partidas completas y Armagedón, y están pendientes del coordinador.
 La jornada real probablemente será bastante más corta, especialmente en primaria. **Si todas las partidas de una ronda
 terminan antes, se adelanta la siguiente: no se espera la hora del cuadro.**
-Una línea separa el fin de grupos/clasificación, cuando se retiran seis jugadores,
-del bloque reservado a los dos finalistas. Los máximos base no incluyen pausas,
+Las líneas de retiro reflejan cada categoría: primaria deja seis jugadores tras
+grupos; baja deja cuatro; alta conserva a todos para sus cruces. Los cruces se
+juegan en paralelo con la primera final, sin aumentar el máximo con cuatro tableros.
+Después de esa partida, solo permanecen los finalistas del campeonato. Los máximos base no incluyen pausas,
 pujas, bonificaciones por ilegales ni la recaptura excepcional de primaria.
 
 No hay tolerancia de llegada: la partida comienza a la hora anunciada y corre el
@@ -115,8 +120,8 @@ nunca bajar. Revisa su asignación A/B.
 
 Cada panel exporta/importa un JSON exclusivo de su categoría. No incluye nombres,
 conducta ni multiplicadores de Configuración. Reiniciar una categoría no afecta
-las otras. Una corrección que cambie los finalistas regenera la final y elimina
-sus resultados anteriores. Cambiar una partida de la final elimina su Armagedón.
+las otras. Una corrección que cambie los jugadores de un cruce regenera ese partido y elimina
+sus resultados; los otros cruces se mantienen si sus jugadores no cambian. Cambiar una partida de la final elimina su Armagedón.
 
 Configuración usa `ajedrez_setup_v2`; secundarias usan
 `ajedrez_secundaria_baja_v2` y `ajedrez_secundaria_alta_v2`.

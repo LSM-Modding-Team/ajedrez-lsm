@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Olimpiadas de ajedrez — Secundaria</title>
-<link rel="stylesheet" href="style.css?v=7bffda414e56">
+<link rel="stylesheet" href="style.css?v=7a0b853b740f">
 </head>
 <body class="page-publico-secundaria">
 <div class="sitebar"><a class="event-brand" href="index.html" aria-label="Olimpiadas escolares, inicio"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 7h5v5h5V7h5v5h5V7h5v12h-4l-2 12h6v4H8v-4h6l-2-12H8Z" fill="currentColor"/></svg><span>OLIMPIADAS<span>ESCOLARES / AJEDREZ</span></span></a><nav aria-label="Navegación principal"><a href="index.html">Torneos</a><a href="config.html">Configuración</a><a href="manual.html">Guía del árbitro</a></nav></div>
@@ -16,7 +16,7 @@
 
 <main class="wide" id="app"></main>
 
-<script src="reglas-86746d54d495.js"></script>
+<script src="reglas-3c79539c1aa5.js"></script>
 <script>
 const MODE=SECONDARY_MODE;
 const CATEGORY=modalityMeta(MODE);
@@ -68,13 +68,14 @@ function bktPlayerRowS(slot, whichP){
   return `
     <div class="bkt-player ${adv?'adv':''}">
       <div class="who"><span class="dot" style="--c:${COLOR_META[c].hex}"></span><span class="name">${nameShort(p)}</span></div>
-      <div class="sc">${sc}</div>
+      <div class="sc">${sc}${slot.place && matchCompleteS(slot)?`<small>${winner?(winner===p?slot.place:slot.place+1)+'.º':slot.place+'.º–'+(slot.place+1)+'.º'}</small>`:''}</div>
     </div>`;
 }
 function bktMetaS(slot){
   if(!slot) return `<div class="bkt-meta">Sin definir</div>`;
   if(slot.provisional) return `<div class="bkt-meta">Pendiente de completar grupos</div>`;
   if(!slot.colorChoice) return `<div class="bkt-meta">Falta elegir color</div>`;
+  if(slot.games.length===1 && matchCompleteS(slot)) return `<div class="bkt-meta">${matchWinnerS(slot)?'Puestos definidos':`Tablas · ${slot.place}.º–${slot.place+1}.º compartido · ${formatPoints(pairAverageS(slot.place))} puntos cada uno`}</div>`;
   if(!matchWinnerS(slot) && needsArmageddonS(slot)) return `<div class="bkt-meta">Empate — Armagedón en curso</div>`;
   const winner = matchWinnerS(slot);
   if(winner) return `<div class="bkt-meta">Definido</div>`;
@@ -83,7 +84,7 @@ function bktMetaS(slot){
   return `<div class="bkt-meta">Sin jugar</div>`;
 }
 function bktBoxS(id, slot){
-  const decided = slot && !slot.provisional && slot.colorChoice && !!matchWinnerS(slot);
+  const decided = slot && !slot.provisional && matchCompleteS(slot);
   return `<div class="bkt-box ${!slot?'empty':''} ${decided?'decided':''}" id="${id}">
     ${bktPlayerRowS(slot,1)}
     ${bktPlayerRowS(slot,2)}
@@ -93,19 +94,14 @@ function bktBoxS(id, slot){
 
 function renderColorPoints(){
   const placements = computePlacementsS(S);
-  const colorTotals = Object.fromEntries(COLORS.map(c=>[c,0]));
-  if(placements){
-    Object.entries(placements).forEach(([p,place])=>{ colorTotals[pidColor(p)] += PLACE_POINTS_SECUNDARIA[place]||0; });
-  }
-  const weight = modalityWeight(MODE);
-  COLORS.forEach(c=>{ colorTotals[c] = scaledPoints(colorTotals[c], MODE); });
+  const colorTotals = colorPointsS(S);
   const hasAny = placements && Object.keys(placements).length>0;
   const maxTotal = Math.max(1,...Object.values(colorTotals));
   const colorRanked = COLORS.slice().sort((a,b)=>colorTotals[b]-colorTotals[a]);
   return `
   <div class="panel">
     <h2>Puntaje por color</h2>
-    ${hasAny && !(S.final && matchWinnerS(S.final)) ? `<div class="note">Provisional: falta resolver la final.</div>` : ''}
+    ${hasAny && !tournamentCompleteS(S) ? `<div class="note">Provisional: faltan partidas por resolver.</div>` : ''}
     ${!hasAny ? `<div class="note">Aún no hay resultados.</div>` : colorRanked.map((c,i)=>`
       <div class="final-standing">
         <div class="rank">${i+1}º</div>
@@ -133,15 +129,10 @@ function render(){
 
   <div class="public-layout">
     <div class="bracket-wrap" id="bracketWrap">
-      <div class="bracket">
-        <div class="bracket-col col-final">
-          <div>
-            <div class="bkt-roundlabel">Final · 1.º A vs 1.º B · 15+0</div>
-            ${bktBoxS('mb-final', finalSlot)}
-          </div>
-        </div>
+      <div class="public-finals-grid">
+        <div class="public-match championship"><div class="bkt-roundlabel">Final · 1.º A vs 1.º B · dos partidas 15+0</div>${bktBoxS('mb-final',finalSlot)}</div>
+        ${placementPlacesS(S).map(place=>`<div class="public-match"><div class="bkt-roundlabel">${place}.º–${place+1}.º · una partida 15+0</div>${bktBoxS('mb-'+place,S.placementMatches?.[place])}<div class="cross-prizes">${formatPoints(PLACE_POINTS_SECUNDARIA[place])} / ${formatPoints(PLACE_POINTS_SECUNDARIA[place+1])} puntos · tablas: ${formatPoints(pairAverageS(place))} cada uno</div></div>`).join('')}
       </div>
-      
     </div>
     <div class="public-sidebar">
       ${champion ? `

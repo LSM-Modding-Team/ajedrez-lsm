@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel del árbitro — Primaria</title>
-<link rel="stylesheet" href="style.css?v=7bffda414e56">
+<link rel="stylesheet" href="style.css?v=7a0b853b740f">
 </head>
 <body class="page-control page-arbitro-secundaria">
 <div class="sitebar"><a class="event-brand" href="index.html" aria-label="Olimpiadas escolares, inicio"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 7h5v5h5V7h5v5h5V7h5v12h-4l-2 12h6v4H8v-4h6l-2-12H8Z" fill="currentColor"/></svg><span>OLIMPIADAS<span>ESCOLARES / AJEDREZ</span></span></a><nav aria-label="Navegación principal"><a href="index.html">Torneos</a><a href="config.html">Configuración</a><a href="manual.html">Guía del árbitro</a></nav></div>
@@ -32,7 +32,7 @@
   </details>
 </footer>
 
-<script src="reglas-86746d54d495.js"></script>
+<script src="reglas-3c79539c1aa5.js"></script>
 <script>
 const MODE='primaria';
 const CATEGORY=modalityMeta(MODE);
@@ -253,7 +253,7 @@ function renderStandingsTable(g){
 function renderCrossTiers(){
   const oa=groupOrderS(S,'A'),ob=groupOrderS(S,'B');
   return `<div class="panel"><h2>Puestos compartidos</h2>${[1,2,3].map((position,i)=>`
-    <div class="placement-tier"><b>${3+2*i}.º-${4+2*i}.º</b><div>${chip(oa[position],MODE)} ${chip(ob[position],MODE)}</div><span>${[4,2,1][i]} puntos por jugador</span></div>`).join('')}</div>`;
+    <div class="placement-tier"><b>${3+2*i}.º-${4+2*i}.º</b><div>${chip(oa[position],MODE)} ${chip(ob[position],MODE)}</div><span>${[16,8,4][i]} puntos por jugador</span></div>`).join('')}</div>`;
 }
 function renderClasif(){
   if(!S.groups) return `<div class="panel"><div class="warn">Aún no hay grupos confirmados.</div></div>`;
@@ -380,7 +380,7 @@ function renderPuntos(){
   if(!placements) return `<div class="panel"><div class="warn">Completa al menos la fase de grupos para ver el reparto de puntos.</div></div>`;
   const rows = Object.entries(placements).sort((a,b)=>a[1]-b[1]);
   const colorTotals = Object.fromEntries(COLORS.map(c=>[c,0]));
-  rows.forEach(([p,place])=>{ colorTotals[pidColor(p)] += PLACE_POINTS_SECUNDARIA[place]||0; });
+  rows.forEach(([p,place])=>{ colorTotals[pidColor(p)] += PLACE_POINTS_PRIMARIA[place]||0; });
   const weight = modalityWeight(MODE);
   COLORS.forEach(c=>{ colorTotals[c] = scaledPoints(colorTotals[c], MODE); });
   const maxTotal = Math.max(1,...Object.values(colorTotals));
@@ -391,7 +391,7 @@ function renderPuntos(){
     <div class="sub">${!S.final?'Los puestos 1º–2º son provisionales hasta jugar la final.':(!matchWinnerS(S.final)?'Los puestos 1º–2º son provisionales hasta terminar la final.':'')}</div>
     <table class="pts-table">
       <tr><th>Puesto</th><th>Jugador</th><th class="num">Puntos</th></tr>
-      ${placementTiersS(S).map(t=>`<tr><td class="pos">${placementLabelS(t.place)}</td><td>${t.players.map(p=>chip(p,MODE)).join(' ')}</td><td class="num mono">${PLACE_POINTS_SECUNDARIA[t.place]}${t.players.length>1?' cada uno':''}</td></tr>`).join('')}
+      ${placementTiersS(S).map(t=>`<tr><td class="pos">${placementLabelS(t.place)}</td><td>${t.players.map(p=>chip(p,MODE)).join(' ')}</td><td class="num mono">${PLACE_POINTS_PRIMARIA[t.place]}${t.players.length>1?' cada uno':''}</td></tr>`).join('')}
 
     </table>
   </div>
