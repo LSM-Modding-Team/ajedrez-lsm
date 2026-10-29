@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel del árbitro — Primaria</title>
-<link rel="stylesheet" href="style.css?v=7a0b853b740f">
+<link rel="stylesheet" href="style.css?v=1d96374c8327">
 </head>
 <body class="page-control page-arbitro-secundaria">
 <div class="sitebar"><a class="event-brand" href="index.html" aria-label="Olimpiadas escolares, inicio"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 7h5v5h5V7h5v5h5V7h5v12h-4l-2 12h6v4H8v-4h6l-2-12H8Z" fill="currentColor"/></svg><span>OLIMPIADAS<span>ESCOLARES / AJEDREZ</span></span></a><nav aria-label="Navegación principal"><a href="index.html">Torneos</a><a href="config.html">Configuración</a><a href="manual.html">Guía del árbitro</a></nav></div>
@@ -32,7 +32,8 @@
   </details>
 </footer>
 
-<script src="reglas-2ed012005a8d.js"></script>
+<script src="reglas-e335a88975cf.js"></script>
+<script src="sorteo-6d05df9fa9d8.js"></script>
 <script>
 const MODE='primaria';
 const CATEGORY=modalityMeta(MODE);
@@ -53,8 +54,6 @@ const TABS = [
 function save(){ saveSecundaria(S); render(); }
 
 /* ---- Sorteo y grupos ---- */
-function shuffleSeedUI(){ S.seedOrder = shuffleSeedArr(); render(); }
-function confirmGroupsUI(){ if(confirmGroupsS(S)){ tab='grupos'; save(); } }
 function resetGroupsUI(){
   if(!confirm('Esto borra los grupos y todos los resultados de esta categoría. ¿Continuar?')) return;
   S = freshPrimaria(); save();
@@ -105,9 +104,7 @@ function importState(){
   try{
     const imported=JSON.parse(document.getElementById('dataBox').value);
     if(imported.category!==MODE) throw new Error('La copia no corresponde a '+CATEGORY.label+'.');
-    if(!Array.isArray(imported.seedOrder) || imported.seedOrder.length!==4 || !imported.manualOverride ||
-       (imported.groups && !['A','B'].every(g=>Array.isArray(imported.groups[g]) && imported.groups[g].length===4 && Array.isArray(imported.groupGames?.[g]) && imported.groupGames[g].length===6)) ||
-       (imported.final && (!Array.isArray(imported.final.games) || imported.final.games.length!==2))) throw new Error('Estructura de torneo inválida.');
+    if(!validTournamentS(imported,MODE)) throw new Error('Estructura de torneo inválida.');
     S=imported; autoAdvanceS(S); save();
   }
   catch(e){ alert('JSON inválido: '+e.message); }
@@ -150,7 +147,7 @@ function renderGroupTable(g){
   const games = S.groupGames[g];
   return `
   <div class="panel">
-    <h2>Grupo ${g} · 20 min por partida</h2>
+    <h2>${groupLabelS(g)} · 20 min por partida</h2>
     <div class="sub">3 rondas · 2 tableros simultáneos.</div>
     <table class="group-games">
       <tr><th>Tablero</th><th>Blancas</th><th>Negras</th><th>Resultado</th></tr>
@@ -174,39 +171,7 @@ function renderGroupTable(g){
   </div>`;
 }
 
-function renderSorteo(){
-  return renderSetupBanner() + `
-  <div class="panel">
-    <h2>Sorteo de grupos</h2>
-    <div class="sub">Primero de cada grupo → final.</div>
-    <div class="grid4">
-      ${[0,1,2,3].map(i=>`
-        <div class="field">
-          <label>Posición ${i+1} del sorteo</label>
-          <select ${S.groups?'disabled':''} onchange="S.seedOrder[${i}]=this.value; setTimeout(render,0)">
-            <option value="">—</option>
-            ${COLORS.map(c=>`<option value="${c}" ${S.seedOrder[i]===c?'selected':''}>${COLOR_META[c].label}</option>`).join('')}
-          </select>
-        </div>
-      `).join('')}
-    </div>
-    <div class="rowbtns">
-      <button class="btn ghost" ${S.groups?'disabled':''} onclick="shuffleSeedUI()">Sortear aleatoriamente</button>
-      <button class="btn" ${S.groups?'disabled':''} onclick="confirmGroupsUI()">Confirmar grupos ${!seedCompleteS(S)?'(completa las 4 posiciones)':''}</button>
-      ${S.groups?`<button class="btn ghost" onclick="resetGroupsUI()">Rehacer sorteo (borra resultados)</button>`:''}
-    </div>
-    ${S.groups?`
-      <div style="margin-top:16px;" class="grid4">
-        ${[['Grupo A','A'],['Grupo B','B']].map(([label,g])=>`
-          <div class="colorcard" style="grid-column:span 2; --c:var(--gold)">
-            <div class="name">${label}</div>
-            ${S.groups[g].map(x=>`<div style="margin:5px 0">${chip(x.pid,MODE)}</div>`).join('')}
-          </div>
-        `).join('')}
-      </div>
-    `:''}
-  </div>`;
-}
+function renderSorteo(){ return renderSetupBanner()+drawAdminHTML(S,MODE); }
 
 function renderGrupos(){
   if(!S.groups) return `<div class="panel"><div class="warn">Primero confirma el sorteo de grupos en la pestaña «1 · Sorteo».</div></div>`;
@@ -219,7 +184,7 @@ function renderStandingsTable(g){
   const flags = unresolvedPairsS(S, order, g);
   return `
   <div class="panel">
-    <h2>Clasificación · Grupo ${g}</h2>
+    <h2>Clasificación · ${groupLabelS(g)}</h2>
     ${!groupCompleteS(S,g)?`<div class="warn">Aún faltan resultados por cargar en este grupo.</div>`:''}
     <table class="standings-table">
       <tr><th>Pos</th><th>Jugador</th><th class="num">Pts</th><th class="num">SB</th><th class="num">Vict.</th><th class="num">Penal.</th><th>Criterio</th><th></th></tr>
@@ -368,7 +333,7 @@ function renderProvisionalCard(title, prov){
 }
 
 function renderFinal(){
-  const rules='<div class="panel"><h2>Final · 1.º Grupo A vs 1.º Grupo B</h2><div class="sub">Dos partidas de 15+0, alternando piezas. Empate 1-1 → Armagedón directo (puja hasta 15 minutos).</div><div class="note">Hasta 60 minutos de juego; con Armagedón, hasta 90, sin pausas ni pujas. Un organizador supervisa el reloj y lo pulsa si los niños se olvidan.</div></div>';
+  const rules='<div class="panel"><h2>Final · 1.º Grupo 1 vs 1.º Grupo 2</h2><div class="sub">Dos partidas de 15+0, alternando piezas. Empate 1-1 → Armagedón directo (puja hasta 15 minutos).</div><div class="note">Hasta 60 minutos de juego; con Armagedón, hasta 90, sin pausas ni pujas. Un organizador supervisa el reloj y lo pulsa si los niños se olvidan.</div></div>';
   if(!S.final) return rules+renderProvisionalCard('Gran Final',provisionalFinalS(S));
   return rules+renderMatchCard('Gran Final','FINAL',S.final,{maxSeconds:ARMAGEDDON_MAX_SECONDS});
 }

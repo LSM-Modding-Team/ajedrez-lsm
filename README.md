@@ -7,7 +7,7 @@ y secundaria alta (3.º a 5.º). Cuatro colores, dos estudiantes por color y cat
 
 Abre el sitio publicado o sirve esta carpeta con `python -m http.server 8000`.
 No necesita compilación ni backend. Cada salón usa una computadora: primaria en una y las dos secundarias en otra.
-En cada equipo, árbitro y resultados usan el mismo navegador, perfil y origen. Los datos se guardan
+En cada equipo, árbitro y pantalla pública usan el mismo navegador, perfil y origen. Los datos se guardan
 localmente y las pestañas se actualizan entre sí; no sincronizan entre equipos.
 Evita el modo privado y no borres los datos del navegador.
 
@@ -25,8 +25,14 @@ El manual visual está integrado en `manual.html`. La propuesta imprimible es
 ## Formato común
 
 Dos grupos de cuatro, todos contra todos. Tres rondas, dos tableros por grupo:
-cuatro tableros permiten jugar ambos grupos a la vez. Los primeros dos colores
-del sorteo aportan sus A al Grupo A y B al Grupo B; los otros dos hacen lo inverso.
+cuatro tableros permiten jugar ambos grupos a la vez. El sorteo se realiza con
+una ruleta en la pantalla pública. Cada giro asigna los dos participantes de un
+color y lo retira de la ruleta; el último color completa los espacios restantes.
+Las salidas 1 y 3 llevan sus A al Grupo 1; las salidas 2 y 4, al Grupo 2.
+Los B van al grupo opuesto, conservando el orden de salida dentro de su rol.
+El orden y el avance se guardan antes de animar cada giro, también al recargar.
+Al terminar, se confirman los grupos desde esa misma pantalla. El árbitro puede
+abrirla desde Sorteo y recibe las asignaciones entre pestañas automáticamente.
 A juega dos veces con negras y una con blancas; B, al revés.
 
 Victoria 2, tablas 1, derrota 0. Desempates: mini-clasificación, enfrentamiento
@@ -52,7 +58,7 @@ La puja menor obtiene negras con ese tiempo y gana con tablas. Blancas recibe
 
 Grupos sin reloj por jugador: 20 minutos por partida. El panel incluye un
 temporizador común por ronda con iniciar, pausar, reanudar y restablecer.
-El plazo se conserva al recargar o cambiar de pestaña; resultados lo muestra
+El plazo se conserva al recargar o cambiar de pestaña; la pantalla pública lo muestra
 mientras se juegan los grupos. No decide ni registra resultados automáticamente.
 Una sola ronda puede correr a la vez.
 

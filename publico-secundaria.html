@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Olimpiadas de ajedrez — Secundaria</title>
-<link rel="stylesheet" href="style.css?v=7a0b853b740f">
+<link rel="stylesheet" href="style.css?v=1d96374c8327">
 </head>
 <body class="page-publico-secundaria">
 <div class="sitebar"><a class="event-brand" href="index.html" aria-label="Olimpiadas escolares, inicio"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 7h5v5h5V7h5v5h5V7h5v12h-4l-2 12h6v4H8v-4h6l-2-12H8Z" fill="currentColor"/></svg><span>OLIMPIADAS<span>ESCOLARES / AJEDREZ</span></span></a><nav aria-label="Navegación principal"><a href="index.html">Torneos</a><a href="config.html">Configuración</a><a href="manual.html">Guía del árbitro</a></nav></div>
@@ -16,7 +16,8 @@
 
 <main class="wide" id="app"></main>
 
-<script src="reglas-2ed012005a8d.js"></script>
+<script src="reglas-e335a88975cf.js"></script>
+<script src="sorteo-6d05df9fa9d8.js"></script>
 <script>
 const MODE=SECONDARY_MODE;
 const CATEGORY=modalityMeta(MODE);
@@ -24,6 +25,7 @@ document.title=document.title.replace('Secundaria',CATEGORY.label);
 document.querySelector('h1').textContent=document.querySelector('h1').textContent.replace('Secundaria',CATEGORY.label);
 document.querySelector('header').insertAdjacentHTML('beforeend',`<div class="rowbtns">${secondaryNav(location.pathname.split('/').pop())}</div>`);
 let S = getSecundaria();
+const publicDraw=createPublicDraw(MODE,()=>{ S=getSecundaria(MODE); render(); });
 function nameShort(p){ return playerName(p,MODE); }
 
 function renderStandings(g){
@@ -31,7 +33,7 @@ function renderStandings(g){
   const order = groupOrderS(S, g);
   return `
   <div class="panel">
-    <div class="group-heading"><h2>Grupo ${g}</h2>
+    <div class="group-heading"><h2>${groupLabelS(g)}</h2>
     ${!groupCompleteS(S,g)?`<div class="note">En curso.</div>`:''}
     </div>
     <table>
@@ -114,10 +116,7 @@ function renderColorPoints(){
 }
 
 function render(){
-  if(!S.groups){
-    document.getElementById('app').innerHTML = `<div class="panel"><div class="warn">El sorteo de grupos todavía no se ha confirmado desde el panel del árbitro.</div></div>`;
-    return;
-  }
+  if(publicDraw.render(S)) return;
   const finalSlot = S.final || provisionalFinalS(S);
   const champion = S.final ? matchWinnerS(S.final) : null;
 

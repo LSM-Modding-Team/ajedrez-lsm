@@ -199,11 +199,76 @@ function chip(p, mode='primaria'){
 function shuffleSeedArr(mode){
   const arr = [...COLORS];
   for(let i=arr.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
+    const j = randomIndexS(i+1);
     [arr[i],arr[j]]=[arr[j],arr[i]];
   }
   if(mode==='secundaria_alta' && (arr.indexOf('verde')<2)===(arr.indexOf('rojo')<2)) return shuffleSeedArr(mode);
   return arr;
+}
+function randomIndexS(length){
+  // Rechazo del sobrante para no sesgar las opciones al reducir el entero.
+  const limit=Math.floor(0x100000000/length)*length, bytes=new Uint32Array(1);
+  do{ crypto.getRandomValues(bytes); }while(bytes[0]>=limit);
+  return bytes[0]%length;
+}
+
+/* Sorteo público. El orden se guarda antes de animar; una recarga solo lo revela. */
+const DRAW_TARGETS = [
+  [{group:'A',position:0,role:'bueno'},{group:'B',position:2,role:'malo'}],
+  [{group:'B',position:0,role:'bueno'},{group:'A',position:2,role:'malo'}],
+  [{group:'A',position:1,role:'bueno'},{group:'B',position:3,role:'malo'}],
+  [{group:'B',position:1,role:'bueno'},{group:'A',position:3,role:'malo'}],
+];
+function groupLabelS(group){ return `Grupo ${group==='A'?1:2}`; }
+function validDrawS(draw){
+  const validSpin=spin=>spin && Number.isInteger(spin.step) && spin.step>=0 && spin.step<3
+    && Number.isFinite(spin.startedAt) && Number.isFinite(spin.durationMs) && spin.durationMs>0 && spin.durationMs<=10000
+    && Number.isFinite(spin.angle) && spin.angle>0 && spin.angle<10000;
+  return draw && draw.version===1 && Array.isArray(draw.order) && draw.order.length===4
+    && draw.order.every(c=>COLORS.includes(c)) && new Set(draw.order).size===4
+    && Number.isInteger(draw.revealed) && [0,1,2,4].includes(draw.revealed)
+    && Number.isFinite(draw.readyAt)
+    && (!draw.spin || (validSpin(draw.spin) && draw.spin.step===draw.revealed))
+    && (!draw.lastSpin || (validSpin(draw.lastSpin) && draw.revealed===(draw.lastSpin.step===2?4:draw.lastSpin.step+1)));
+}
+function drawSlotsS(S){
+  const groups={A:Array(4).fill(null),B:Array(4).fill(null)};
+  if(S.groups) return Object.fromEntries(['A','B'].map(g=>[g,S.groups[g].map(x=>x.pid)]));
+  if(!validDrawS(S.draw)) return groups;
+  for(let i=0;i<S.draw.revealed;i++) for(const target of DRAW_TARGETS[i])
+    groups[target.group][target.position]=pid(S.draw.order[i],target.role);
+  return groups;
+}
+function startDrawSpinS(S,now=Date.now()){
+  if(S.groups) return false;
+  if(!S.draw){
+    const seed=shuffleSeedArr(S.category);
+    S.draw={version:1,order:[seed[0],seed[2],seed[1],seed[3]],revealed:0,spin:null,lastSpin:null,readyAt:0};
+  }
+  const draw=S.draw;
+  if(!validDrawS(draw) || draw.spin || draw.revealed===4 || now<draw.readyAt) return false;
+  const step=draw.revealed,remaining=COLORS.filter(c=>!draw.order.slice(0,step).includes(c));
+  const winnerIndex=remaining.indexOf(draw.order[step]),slice=360/remaining.length;
+  const offset=(randomIndexS(1001)/1000-.5)*slice*.42;
+  const angle=6*360+(360-(winnerIndex+.5)*slice+offset+360)%360;
+  draw.spin={step,startedAt:now,durationMs:4800,angle};
+  draw.lastSpin=null;
+  return true;
+}
+function settleDrawSpinS(S,now=Date.now()){
+  const draw=S.draw;
+  if(!validDrawS(draw) || !draw.spin || now<draw.spin.startedAt+draw.spin.durationMs) return false;
+  draw.lastSpin=draw.spin;
+  draw.revealed=draw.spin.step===2?4:draw.spin.step+1;
+  draw.readyAt=draw.spin.startedAt+draw.spin.durationMs+1700;
+  draw.spin=null;
+  return true;
+}
+function confirmDrawGroupsS(S,now=Date.now()){
+  if(S.groups || !validDrawS(S.draw) || S.draw.spin || S.draw.revealed!==4 || now<S.draw.readyAt) return false;
+  const [c1,c2,c3,c4]=S.draw.order;
+  S.seedOrder=[c1,c3,c2,c4];
+  return confirmGroupsS(S);
 }
 function ensureArmageddon(match, maxSeconds=ARMAGEDDON_MAX_SECONDS){
   maxSeconds = Math.min(ARMAGEDDON_MAX_SECONDS, maxSeconds);
@@ -500,6 +565,7 @@ function validTournamentS(S,mode){
   const validPid=p=>typeof p==='string' && COLORS.includes(pidColor(p)) && ['bueno','malo'].includes(pidRole(p));
   const validMatch=(m,n)=>m && validPid(m.p1) && validPid(m.p2) && m.p1!==m.p2 && Array.isArray(m.games) && m.games.length===n && m.games.every(g=>g && [null,'','white','black','draw'].includes(g.result)) && [null,'p1-white','p1-black'].includes(m.colorChoice);
   return S?.category===mode && Array.isArray(S.seedOrder) && S.seedOrder.length===4 && S.manualOverride && typeof S.manualOverride==='object'
+    && (!S.draw || validDrawS(S.draw))
     && (!S.groups || ['A','B'].every(g=>Array.isArray(S.groups[g]) && S.groups[g].length===4 && S.groups[g].every(p=>p && validPid(p.pid)) && new Set(S.groups[g].map(p=>p.pid)).size===4 && Array.isArray(S.groupGames?.[g]) && S.groupGames[g].length===6 && S.groupGames[g].every(game=>game && game.white!==game.black && [game.white,game.black].every(p=>S.groups[g].some(x=>x.pid===p)) && ['white','black','draw',null,''].includes(game.result))))
     && (!S.final || validMatch(S.final,2))
     && (!S.placementMatches || (typeof S.placementMatches==='object' && !Array.isArray(S.placementMatches) && Object.entries(S.placementMatches).every(([p,m])=>placementPlacesS(S).includes(Number(p)) && m.place===Number(p) && validMatch(m,1))));
