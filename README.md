@@ -135,3 +135,9 @@ Primaria usa `ajedrez_primaria_grupos_v3`.
 
 La interfaz y los recursos son locales, sin descargas externas para funcionar.
 El manual termina con ejemplos de captura al paso y restricciones del enroque.
+
+## Sonido de la ruleta
+
+Se usa el mismo clic de la versión actual de Wheel of Names: `ding.mp3`,
+guardado localmente y sin cambios. Fuente: https://wheelofnames.com/sounds/ding.mp3.
+Los clics coinciden con el paso de los sectores y se espacian al frenar.

@@ -38,8 +38,59 @@ function wheelDiscHTML(colors){
     }).join('')}<circle cx="250" cy="250" r="243" fill="none" stroke="#d9d7c7" stroke-width="5"/>
   </svg>`;
 }
+function drawSpinProgress(elapsed,duration){
+  const x=Math.max(0,Math.min(1,elapsed/duration));
+  if(x===0 || x===1)return x;
+  // La misma curva que la animación CSS: cubic-bezier(.12,.72,.14,1).
+  let lo=0,hi=1,t=.5;
+  for(let i=0;i<20;i++){
+    t=(lo+hi)/2;
+    const at=3*.12*(1-t)**2*t+3*.14*(1-t)*t*t+t*t*t;
+    if(at<x)lo=t;else hi=t;
+  }
+  return 3*.72*(1-t)**2*t+3*(1-t)*t*t+t*t*t;
+}
+function createDrawAudio(){
+  const Context=window.AudioContext||window.webkitAudioContext;
+  if(!Context)return {unlock(){},follow(){},stop(){}};
+  let context,buffer,frame=null,owner=null;
+  const bytes=fetch('assets/audio/wheel-tick.mp3').then(r=>{
+    if(!r.ok)throw new Error('Audio no disponible');return r.arrayBuffer();
+  }).catch(()=>null);
+  function stop(){if(frame!==null)cancelAnimationFrame(frame);frame=null;}
+  function unlock(spin){
+    owner=spin.startedAt;
+    try{
+      context ||= new Context();
+      context.resume().catch(()=>{});
+      if(!buffer)bytes.then(data=>data&&context.decodeAudioData(data.slice(0))).then(decoded=>{if(decoded)buffer=decoded;}).catch(()=>{});
+    }catch{/* La falta de audio no impide realizar el sorteo. */}
+  }
+  function follow(spin,sectors){
+    stop();
+    if(!spin || owner!==spin.startedAt || !context)return;
+    let last=Math.floor(drawSpinProgress(Date.now()-spin.startedAt,spin.durationMs)*spin.angle/(360/sectors));
+    function tick(){
+      const elapsed=Date.now()-spin.startedAt;
+      if(elapsed>=spin.durationMs || document.hidden){stop();return;}
+      const current=Math.floor(drawSpinProgress(elapsed,spin.durationMs)*spin.angle/(360/sectors));
+      if(current!==last && buffer && context.state==='running'){
+        const source=context.createBufferSource(),gain=context.createGain();
+        source.buffer=buffer;gain.gain.value=.5;
+        source.connect(gain);gain.connect(context.destination);source.start();
+        source.onended=()=>{source.disconnect();gain.disconnect();};
+      }
+      last=current;frame=requestAnimationFrame(tick);
+    }
+    frame=requestAnimationFrame(tick);
+  }
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
+  window.addEventListener('pagehide',stop);
+  return {unlock,follow,stop};
+}
 function createPublicDraw(mode,refresh){
   let timer=null,observer=null,animation=null;
+  const sound=createDrawAudio();
   const read=()=>getSecundaria(mode);
   const title=document.querySelector('header.top');
   const switcher=document.createElement('div');
@@ -49,7 +100,9 @@ function createPublicDraw(mode,refresh){
     const action=event.target.closest('[data-draw-action]')?.dataset.drawAction;
     if(!action)return;
     const state=read();
-    if(action==='spin' && categoryConfigured(mode) && startDrawSpinS(state))saveSecundaria(state);
+    if(action==='spin' && categoryConfigured(mode) && startDrawSpinS(state)){
+      sound.unlock(state.draw.spin);saveSecundaria(state);
+    }
     if(action==='confirm' && confirmDrawGroupsS(state)){
       history.replaceState(null,'',location.pathname+location.search);
       saveSecundaria(state);
@@ -79,7 +132,7 @@ function createPublicDraw(mode,refresh){
     document.body.classList.toggle('draw-mode',visible);
     switcher.innerHTML=state.groups?`<a href="#sorteo" ${visible?'aria-current="page"':''}>Sorteo</a><button type="button" data-draw-action="tournament" ${!visible?'aria-current="page"':''}>Torneo</button>`:'';
     clearTimeout(timer);observer?.disconnect();animation?.cancel();
-    if(!visible)return false;
+    if(!visible){sound.stop();return false;}
     const draw=validDrawS(state.draw)?state.draw:null,now=Date.now();
     const holding=!!draw?.lastSpin && now<draw.readyAt;
     const spin=draw?.spin || (holding?draw.lastSpin:null);
@@ -107,6 +160,7 @@ function createPublicDraw(mode,refresh){
         ${!configured?'<a class="btn ghost" href="config.html">Completar participantes</a>':complete?`<button class="btn" data-draw-action="${state.groups?'tournament':'confirm'}">${state.groups?'Ver torneo':'Confirmar grupos'} →</button>`:''}
       </div></section>`;
     const disc=document.querySelector('.wheel-disc');
+    sound.follow(draw?.spin,colors.length);
     if(spin){
       const elapsed=now-spin.startedAt;
       if(elapsed>=spin.durationMs || window.matchMedia('(prefers-reduced-motion: reduce)').matches)disc.style.transform=`rotate(${spin.angle}deg)`;

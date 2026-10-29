@@ -1,0 +1,4 @@
+Wheel tick sound: ding.mp3, from Wheel of Names.
+Source: https://wheelofnames.com/sounds/ding.mp3
+Used unchanged. The current Wheel of Names application uses this sample
+for its ticking-sound option (WheelConfigUtil-v439.js, play-tick callback).
