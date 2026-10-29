@@ -141,3 +141,13 @@ El manual termina con ejemplos de captura al paso y restricciones del enroque.
 Se usa el mismo clic de la versión actual de Wheel of Names: `ding.mp3`,
 guardado localmente y sin cambios. Fuente: https://wheelofnames.com/sounds/ding.mp3.
 Los clics coinciden con el paso de los sectores y se espacian al frenar.
+
+## Preparar las páginas
+
+Después de editar CSS, reglas o sorteo, ejecuta `python scripts/build_pages.py`.
+El script actualiza los bloques marcados dentro de cada HTML y genera `sw.js`.
+El HTML contiene sus estilos, código, fondo, icono y clic de la ruleta: no espera
+archivos adicionales para mostrarse o funcionar. No requiere instalar paquetes.
+La aplicación guarda una copia de sus siete pantallas después de la primera carga.
+Ese caché solo contiene la interfaz; nombres, resultados y relojes siguen en
+localStorage. Las actualizaciones del caché se preparan en segundo plano.
