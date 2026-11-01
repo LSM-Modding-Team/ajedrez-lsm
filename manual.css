@@ -82,3 +82,14 @@
 .page-manual tbody tr:hover td{background:transparent}
 .manual-clock-pair{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(max-width:760px){.manual-clock{flex-direction:column;align-items:flex-start;gap:8px}}
+
+/* Guía con la misma superficie clara y jerarquía del torneo. */
+.manual-section{background:#fff;border-color:var(--line);box-shadow:none}
+.manual-section h2,.manual-section h3{font-family:'Sora',Arial,sans-serif}
+.manual-steps>li::before{background:#f5f2eb;color:var(--red)}
+.manual-callout{background:#faf2ef;border-left-color:var(--red)}
+.manual-piece{color:var(--red)}
+.page-manual th{background:#f5f2eb}
+.manual-clock.white{background:#f8f7f2;color:#222429}
+.manual-clock.black{background:#222429;color:#fff;border-color:#222429}
+.manual-skip{background:var(--red);color:#fff}
