@@ -602,6 +602,16 @@ details{background:#fff;border-color:var(--line)}
 }
 @media print{body{background:#fff!important}body:before,body:after{display:none!important}.btn{color:#222429!important}}
 
+/* Rondas sin bandas vacías y resultados integrados en la tabla. */
+.group-games .round-row td,.group-games .round-row:hover td{background:transparent!important;border-top:1px solid var(--line);color:var(--red);padding:13px 0 8px;font-weight:600;letter-spacing:.04em}
+.group-games tr.round-row{background:transparent}
+.group-games .round-row:first-of-type td{border-top:0}
+.page-control .group-games td{vertical-align:middle}
+.page-control .group-games select{background:#f8f7f3;border-color:#dedbd3;border-radius:4px;min-height:42px;padding:9px 12px;color:var(--ink);font-size:var(--small-size,14px)}
+.page-control .group-games select:hover{background:#fff;border-color:#a6a297}
+.page-control .group-games select:focus-visible{outline:2px solid var(--red);outline-offset:2px;background:#fff}
+@media(max-width:620px){.group-games tr.round-row{padding:0;margin-top:12px}.group-games .round-row td{padding:10px 0 5px}}
+
 </style>
 <!-- /bundle:style.css -->
 </head>
@@ -610,7 +620,7 @@ details{background:#fff;border-color:var(--line)}
 
 <header class="top">
   <h1>Configuración</h1>
-  <p>Completa solo las categorías de este salón; las demás pueden quedar vacías. A: mayor grado; a igual grado, fecha de nacimiento más antigua.</p>
+  <p>Completa solo las categorías de este salón; las demás pueden quedar vacías. Mayor y Menor se asignan por grado; a igual grado, por fecha de nacimiento.</p>
 </header>
 
 
@@ -812,7 +822,7 @@ function playerName(p, mode='primaria'){
   const c = pidColor(p), r = pidRole(p);
   const n = bucket.players[c] && bucket.players[c][r];
   if(n && n.trim()) return escapeHTML(n.trim());
-  return `${COLOR_META[c].label} — participante ${r==='bueno'?'A':'B'}`;
+  return `${COLOR_META[c].label} — participante ${r==='bueno'?'Mayor':'Menor'}`;
 }
 function penaltyOf(p, mode='primaria'){
   // La conducta es del color, no de la modalidad: mode se ignora aquí y solo se conserva
@@ -1082,7 +1092,7 @@ function combinedStatsS(S){
 /* ---- Explicación de desempate (para mostrar en arbitro/publico SOLO cuando de verdad decide algo) ----
    Cascada real (ver rankPlayers): puntos -> enfrentamiento directo (si el empate, tras el mini-torneo
    entre los empatados, se reduce a exactamente 2 jugadores que ya se enfrentaron) -> SB -> victorias
-   -> conducta -> B o B efectivo. Devuelve null si a y b no están empatados en puntos
+   -> conducta -> B o Menor efectivo. Devuelve null si a y b no están empatados en puntos
    (no hace falta desempatar) o si están en empate total tras todos los criterios. */
 function tieBreakLabelS(S, g, a, b){
   const st = groupStatsS(S, g);
@@ -1092,8 +1102,8 @@ function tieBreakLabelS(S, g, a, b){
   if(st.sb[a] !== st.sb[b]) return 'SB (Sonneborn-Berger)';
   if(st.wins[a] !== st.wins[b]) return 'victorias';
   if(penaltyOf(a) !== penaltyOf(b)) return 'conducta';
-  if(pidRole(a)!==pidRole(b)) return 'prioridad B';
-  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'B efectivo (grado y nacimiento)';
+  if(pidRole(a)!==pidRole(b)) return 'prioridad Menor';
+  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'Menor efectivo (grado y nacimiento)';
   return 'empate total (sin desempate)';
 }
 // Misma idea para comparar jugadores de grupos distintos (5º-8º puesto): no hay partidos entre
@@ -1104,8 +1114,8 @@ function tieBreakLabelCombinedS(S, a, b){
   if(cs.sb[a] !== cs.sb[b]) return 'SB (Sonneborn-Berger)';
   if(cs.wins[a] !== cs.wins[b]) return 'victorias';
   if(penaltyOf(a) !== penaltyOf(b)) return 'conducta';
-  if(pidRole(a)!==pidRole(b)) return 'prioridad B';
-  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'B efectivo (grado y nacimiento)';
+  if(pidRole(a)!==pidRole(b)) return 'prioridad Menor';
+  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'Menor efectivo (grado y nacimiento)';
   return 'empate total (sin desempate)';
 }
 
@@ -1142,7 +1152,7 @@ function needsArmageddonS(match){
   const t = matchTallyS(match);
   return t.played===match.games.length && t.s1===t.s2;
 }
-// Comparación entre líderes: puntos, SB, victorias, conducta y B efectivo. Sin enfrentamiento directo.
+// Comparación entre líderes: puntos, SB, victorias, conducta y Menor efectivo. Sin enfrentamiento directo.
 function finalColorRankingS(S, match=S.final){
   const pids=match ? [match.p1,match.p2] : [groupLeaderS(S,'A'),groupLeaderS(S,'B')];
   if(pids.some(p=>!p)) return {order:[],unresolved:[]};
@@ -1296,12 +1306,12 @@ function renderDelegationBlock(mode, title, subtitle){
           <div class="colorcard" style="--c:${COLOR_META[c].hex}">
             <div class="name">${COLOR_META[c].label}</div>
             <div class="field">
-              <label>Participante A</label>
+              <label>Participante Mayor</label>
               <input type="text" ${locked?'disabled':''} value="${escapeHTML(bucket.players[c].bueno)}" placeholder="Nombre completo"
                 oninput="setup['${mode}'].players['${c}'].bueno=this.value">
             </div>
             <div class="field">
-              <label>Participante B</label>
+              <label>Participante Menor</label>
               <input type="text" ${locked?'disabled':''} value="${escapeHTML(bucket.players[c].malo)}" placeholder="Nombre completo"
                 oninput="setup['${mode}'].players['${c}'].malo=this.value">
             </div>

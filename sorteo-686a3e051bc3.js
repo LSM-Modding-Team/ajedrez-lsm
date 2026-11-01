@@ -10,8 +10,8 @@ function drawGroupHTML(S,mode,group,targets=[]){
       return `<li class="draw-slot ${active?'draw-target':''} ${p?'filled':''}" data-draw-position="${i}">
         <span class="draw-position">${i+1}</span>
         ${p?`<span class="dot" style="--c:${COLOR_META[pidColor(p)].hex}"></span>`:'<span class="draw-empty-dot"></span>'}
-        <span class="draw-player">${p?playerName(p,mode):`Participante ${i<2?'A':'B'}`}</span>
-        ${p?`<span class="draw-role">${pidRole(p)==='bueno'?'A':'B'}</span>`:''}
+        <span class="draw-player">${p?playerName(p,mode):`Participante ${i<2?'Mayor':'Menor'}`}</span>
+        ${p?`<span class="draw-role">${pidRole(p)==='bueno'?'Mayor':'Menor'}</span>`:''}
       </li>`;
     }).join('')}</ol>
   </section>`;
@@ -141,7 +141,7 @@ function createPublicDraw(mode,refresh){
     const targets=complete?[]:DRAW_TARGETS[step];
     const colors=complete?(draw?.order||COLORS):draw?COLORS.filter(c=>!draw.order.slice(0,Math.min(step,3)).includes(c)):COLORS;
     const configured=categoryConfigured(mode),busy=!!spin;
-    const destination=targets?.map(t=>`${t.role==='bueno'?'A':'B'} → grupo ${t.group==='A'?1:2}, posición ${t.position+1}`).join(' · ');
+    const destination=targets?.map(t=>`${t.role==='bueno'?'Mayor':'Menor'} → grupo ${t.group==='A'?1:2}, posición ${t.position+1}`).join(' · ');
     const message=complete?'Grupos completos':holding?COLOR_META[draw.order[step]].label:['Primera salida','Segunda salida','Tercera salida'][step];
     const revealed=draw?.revealed||0;
     document.getElementById('app').innerHTML=`<section class="draw-screen" aria-label="Sorteo de grupos">
@@ -152,7 +152,7 @@ function createPublicDraw(mode,refresh){
         <div class="draw-wheel-column"><div class="draw-wheel-shell ${busy?'busy':''}">
           ${wheelDiscHTML(colors)}<span class="wheel-pointer" aria-hidden="true"></span>
           ${complete?'<div class="wheel-hub wheel-finished" aria-hidden="true">✓</div>':`<button type="button" class="wheel-hub" data-draw-action="spin" ${busy||!configured?'disabled':''} aria-label="${busy?'Ruleta en curso':'Girar ruleta'}">${busy?holding?'✓':'•••':'Girar'}</button>`}
-        </div><div class="draw-message" aria-live="polite" aria-atomic="true"><h3>${message}</h3><p>${complete?'Dos A y dos B en cada grupo.':destination}</p></div></div>
+        </div><div class="draw-message" aria-live="polite" aria-atomic="true"><h3>${message}</h3><p>${complete?'Dos Mayores y dos Menores en cada grupo.':destination}</p></div></div>
         ${drawGroupHTML(state,mode,'B',targets)}
       </div>
       <div class="draw-bottom">

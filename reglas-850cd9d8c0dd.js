@@ -192,7 +192,7 @@ function playerName(p, mode='primaria'){
   const c = pidColor(p), r = pidRole(p);
   const n = bucket.players[c] && bucket.players[c][r];
   if(n && n.trim()) return escapeHTML(n.trim());
-  return `${COLOR_META[c].label} — participante ${r==='bueno'?'A':'B'}`;
+  return `${COLOR_META[c].label} — participante ${r==='bueno'?'Mayor':'Menor'}`;
 }
 function penaltyOf(p, mode='primaria'){
   // La conducta es del color, no de la modalidad: mode se ignora aquí y solo se conserva
@@ -472,8 +472,8 @@ function tieBreakLabelS(S, g, a, b){
   if(st.sb[a] !== st.sb[b]) return 'SB (Sonneborn-Berger)';
   if(st.wins[a] !== st.wins[b]) return 'victorias';
   if(penaltyOf(a) !== penaltyOf(b)) return 'conducta';
-  if(pidRole(a)!==pidRole(b)) return 'prioridad B';
-  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'B efectivo (grado y nacimiento)';
+  if(pidRole(a)!==pidRole(b)) return 'prioridad Menor';
+  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'Menor efectivo (grado y nacimiento)';
   return 'empate total (sin desempate)';
 }
 // Misma idea para comparar jugadores de grupos distintos (5º-8º puesto): no hay partidos entre
@@ -484,8 +484,8 @@ function tieBreakLabelCombinedS(S, a, b){
   if(cs.sb[a] !== cs.sb[b]) return 'SB (Sonneborn-Berger)';
   if(cs.wins[a] !== cs.wins[b]) return 'victorias';
   if(penaltyOf(a) !== penaltyOf(b)) return 'conducta';
-  if(pidRole(a)!==pidRole(b)) return 'prioridad B';
-  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'B efectivo (grado y nacimiento)';
+  if(pidRole(a)!==pidRole(b)) return 'prioridad Menor';
+  if(overrideOfS(S,a) !== overrideOfS(S,b)) return 'Menor efectivo (grado y nacimiento)';
   return 'empate total (sin desempate)';
 }
 

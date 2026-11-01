@@ -16,8 +16,8 @@ El manual visual está integrado en `manual.html`. La propuesta imprimible es
 
 ## Preparación
 
-- Configura solo las categorías del salón; las demás pueden quedar vacías. A es mayor grado; a igual grado,
-  fecha de nacimiento más antigua. B es el otro; no representa habilidad.
+- Configura solo las categorías del salón; las demás pueden quedar vacías. Mayor es mayor grado; a igual grado,
+  fecha de nacimiento más antigua. Menor es el otro; no representa habilidad.
 - Conducta se registra una vez por color y se comparte entre categorías.
 - Cada categoría tiene su propio total de puntos repartidos. Guarda antes de iniciar.
 - Cada panel recuerda su última pestaña. Baja y alta conservan sus fases por separado.
@@ -28,16 +28,16 @@ Dos grupos de cuatro, todos contra todos. Tres rondas, dos tableros por grupo:
 cuatro tableros permiten jugar ambos grupos a la vez. El sorteo se realiza con
 una ruleta en la pantalla pública. Cada giro asigna los dos participantes de un
 color y lo retira de la ruleta; el último color completa los espacios restantes.
-Las salidas 1 y 3 llevan sus A al Grupo 1; las salidas 2 y 4, al Grupo 2.
-Los B van al grupo opuesto, conservando el orden de salida dentro de su rol.
+Las salidas 1 y 3 llevan sus Mayores al Grupo 1; las salidas 2 y 4, al Grupo 2.
+Los Menores van al grupo opuesto, conservando el orden de salida dentro de su rol.
 El orden y el avance se guardan antes de animar cada giro, también al recargar.
 Al terminar, se confirman los grupos desde esa misma pantalla. El árbitro puede
 abrirla desde Sorteo y recibe las asignaciones entre pestañas automáticamente.
-A juega dos veces con negras y una con blancas; B, al revés.
+Mayor juega dos veces con negras y una con blancas; Menor, al revés.
 
 Victoria 2, tablas 1, derrota 0. Desempates: mini-clasificación, enfrentamiento
 directo al reducirse a dos (tablas favorecen a negras), SB, victorias, menos
-penalizaciones y prioridad B. Entre jugadores del mismo rol, B efectivo es menor
+penalizaciones y prioridad Menor. Entre jugadores del mismo rol, Menor efectivo es menor
 grado y luego fecha de nacimiento más reciente; el árbitro registra quién lo es.
 No se juegan partidas adicionales de grupo.
 
@@ -48,7 +48,7 @@ Los cruces de puestos son una partida 15+0: ganador al puesto superior; tablas
 comparten el par y cada uno recibe el promedio de los premios. No hay Armagedón
 en estos cruces. Primaria solo disputa el campeonato después de grupos.
 En cada encuentro elige color quien tuvo mejor desempeño de grupo: puntos, SB,
-victorias, conducta y B/B efectivo, sin enfrentamiento directo entre grupos.
+victorias, conducta y Menor/Menor efectivo, sin enfrentamiento directo entre grupos.
 
 Armagedón: puja secreta de 0 a 15 minutos, precisión de un segundo, sin incremento.
 La puja menor obtiene negras con ese tiempo y gana con tablas. Blancas recibe
@@ -123,7 +123,7 @@ pujas, bonificaciones por ilegales ni la recaptura excepcional de primaria.
 No hay tolerancia de llegada: la partida comienza a la hora anunciada y corre el
 reloj correspondiente. Ante inasistencia o negativa a jugar, el color elige
 reemplazo; solo en ese caso puede subir alguien desde una categoría inferior,
-nunca bajar. Revisa su asignación A/B.
+nunca bajar. Revisa su asignación Mayor/Menor.
 
 ## Datos y respaldos
 
