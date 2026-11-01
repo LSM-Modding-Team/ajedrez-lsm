@@ -74,6 +74,17 @@ body:after{background:conic-gradient(#22242909 25%,transparent 0 50%,#22242909 0
  .division-actions a:hover{padding-left:7px;padding-right:7px}
 }
 
+
+/* Slightly taller masthead; category content retains its scale. */
+body:before{border-top-width:8px}
+@media(min-width:1001px){
+ body{grid-template-rows:clamp(112px,13.5vh,154px) auto minmax(0,1fr)}
+ .event-brand img{width:clamp(218px,14.7vw,278px)}
+ .sitebar nav a{font-size:clamp(17px,1.2vw,23px)}
+ h1{font-size:clamp(74px,8.8vh,118px)}
+ .division{gap:clamp(16px,2.5vh,30px)}
+}
+
 </style>
 </head>
 <body class="page-index">
