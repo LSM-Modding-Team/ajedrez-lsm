@@ -1124,6 +1124,20 @@ function computePlacementsS(S){
 <script>
 let setup = getSetup();
 
+function fillRandomNames(){
+  if(setup.locked) return;
+  const first=['Adrián','Lucía','Mateo','Valeria','Diego','Camila','Gabriel','Sofía','Nicolás','Paula','Joaquín','Daniela','Samuel','Mariana','Andrés','Isabella','Bruno','Renata','Sebastián','Elena','Tomás','Martina','Leonardo','Catalina'];
+  const last=['Rojas','Flores','Campos','Vela','Herrera','Reyes','Salazar','Torres','Mendoza','Córdova','Paredes','Luna','Castro','Vargas','Romero','Aguilar','Medina','Navarro','Soto','Quispe','Ramos','Delgado','Vega','Paz'];
+  const used=new Set(MODALITIES.flatMap(m=>COLORS.flatMap(c=>Object.values(setup[m.id].players[c]))));
+  for(const m of MODALITIES) for(const c of COLORS) for(const role of ['bueno','malo']){
+    if(String(setup[m.id].players[c][role]||'').trim()) continue;
+    let name;
+    do { name=first[randomIndexS(first.length)]+' '+last[randomIndexS(last.length)]; } while(used.has(name));
+    setup[m.id].players[c][role]=name;used.add(name);
+  }
+  render();
+}
+
 function save(){
   setup.locked = true;
   saveSetup(setup);
@@ -1197,6 +1211,7 @@ function renderWeights(){
 function render(){
   const locked = !!setup.locked;
   document.getElementById('app').innerHTML = `
+    <div class="rowbtns" style="justify-content:flex-end;margin:0 0 16px"><button class="btn ghost small" onclick="fillRandomNames()" ${locked?'disabled':''}>Nombres aleatorios</button></div>
     ${renderConducta()}
     ${MODALITIES.map(m=>renderDelegationBlock(m.id,m.label,'')).join('')}
 
