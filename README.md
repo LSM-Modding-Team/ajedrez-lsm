@@ -94,15 +94,18 @@ Las tres categorías reparten 152 puntos base. Campeonato: 64 y 32.
 
 | Puesto | Primaria | Secundaria baja | Secundaria alta |
 | --- | ---: | ---: | ---: |
-| 3.º / 4.º | 16 cada uno | 20 / 12 | 20 / 12 |
-| 5.º / 6.º | 8 cada uno | 8 cada uno | 10 / 6 |
-| 7.º / 8.º | 4 cada uno | 4 cada uno | 5 / 3 |
+| 1.º | 30 % | 28 % | 27 % |
+| 2.º | 22 % | 20 % | 19 % |
+| 3.º / 4.º | 13 % cada uno | 17 / 13 % | 16 / 12 % |
+| 5.º / 6.º | 8 % cada uno | 8 % cada uno | 11 / 7 % |
+| 7.º / 8.º | 3 % cada uno | 3 % cada uno | 6 / 2 % |
 
-Tablas en un cruce: promedio de los dos premios (16, 8 o 4 puntos cada uno).
-Los pares sin cruce comparten puesto y puntos. Aporte del color = suma de sus dos
-jugadores, ajustada al total configurado de su categoría y conservando decimales.
-Los resultados siguen provisionales mientras falte cualquier cruce; los de
-puestos pendientes muestran su promedio y los finalistas pendientes, 32 cada uno.
+Las tablas en un cruce comparten el promedio. El color suma los premios de sus
+representantes. Los totales predeterminados son 126, 135 y 140: todos los
+campeones reciben 37,8 puntos. Cada total sigue siendo editable.
+Los totales personalizados guardados se conservan; los valores predeterminados
+anteriores se actualizan al nuevo reparto. Los premios se muestran en la escala
+configurada tanto en los puestos individuales como en los puntajes por color.
 
 ## Horarios y asistencia
 
