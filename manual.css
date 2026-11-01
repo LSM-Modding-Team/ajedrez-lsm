@@ -93,3 +93,11 @@
 .manual-clock.white{background:#f8f7f2;color:#222429}
 .manual-clock.black{background:#222429;color:#fff;border-color:#222429}
 .manual-skip{background:var(--red);color:#fff}
+
+/* El indicador del desplegable queda dentro de su área de pulsación. */
+.manual-details{padding:16px 20px}
+.manual-details summary{display:flex;align-items:center;gap:12px;list-style:none;padding:0;min-height:24px}
+.manual-details summary::-webkit-details-marker{display:none}
+.manual-details summary::marker{content:''}
+.manual-details summary::before{content:'';display:block;flex:none;width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);margin-right:2px}
+.manual-details[open] summary::before{transform:rotate(45deg)}
