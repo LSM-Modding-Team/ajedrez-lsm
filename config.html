@@ -1200,11 +1200,11 @@ function renderDelegationBlock(mode, title, subtitle){
 
 function renderWeights(){
   const locked=!!setup.locked;
-  return `<div class="panel"><h2>Multiplicadores de puntos</h2>
-    <div class="sub">Ajusta cuánto aporta cada categoría a las olimpiadas. Las tres categorías reparten 152 puntos base.</div>
+  return `<div class="panel"><h2>Puntos repartidos</h2>
+    <div class="sub">Indica el total de puntos que reparte cada categoría. Se conservan las proporciones entre puestos.</div>
     <div class="grid4 weights-grid">${MODALITIES.map(m=>`<div class="colorcard" style="--c:var(--gold)">
       <div class="name">${m.label}</div>
-      <div class="field"><label>Multiplicador olímpico</label><input type="number" min="0" step="any" ${locked?'disabled':''} value="${setup.weights[m.id]}" oninput="setup.weights['${m.id}']=this.value"></div>
+      <div class="field"><label for="total-${m.id}">Total de puntos</label><input id="total-${m.id}" type="number" min="0" step="any" ${locked?'disabled':''} value="${Number((Math.max(0,Number(setup.weights[m.id])||0)*152).toFixed(10))}" oninput="setup.weights['${m.id}']=Math.max(0,Number(this.value)||0)/152"></div>
     </div>`).join('')}</div></div>`;
 }
 

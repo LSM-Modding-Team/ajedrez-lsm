@@ -19,7 +19,7 @@ El manual visual está integrado en `manual.html`. La propuesta imprimible es
 - Configura solo las categorías del salón; las demás pueden quedar vacías. A es mayor grado; a igual grado,
   fecha de nacimiento más antigua. B es el otro; no representa habilidad.
 - Conducta se registra una vez por color y se comparte entre categorías.
-- Cada categoría tiene su propio multiplicador olímpico. Guarda antes de iniciar.
+- Cada categoría tiene su propio total de puntos repartidos. Guarda antes de iniciar.
 - Cada panel recuerda su última pestaña. Baja y alta conservan sus fases por separado.
 
 ## Formato común
@@ -100,7 +100,7 @@ Las tres categorías reparten 152 puntos base. Campeonato: 64 y 32.
 
 Tablas en un cruce: promedio de los dos premios (16, 8 o 4 puntos cada uno).
 Los pares sin cruce comparten puesto y puntos. Aporte del color = suma de sus dos
-jugadores × multiplicador de la categoría, conservando decimales.
+jugadores, ajustada al total configurado de su categoría y conservando decimales.
 Los resultados siguen provisionales mientras falte cualquier cruce; los de
 puestos pendientes muestran su promedio y los finalistas pendientes, 32 cada uno.
 
@@ -125,7 +125,7 @@ nunca bajar. Revisa su asignación A/B.
 ## Datos y respaldos
 
 Cada panel exporta/importa un JSON exclusivo de su categoría. No incluye nombres,
-conducta ni multiplicadores de Configuración. Reiniciar una categoría no afecta
+conducta ni totales de puntos de Configuración. Reiniciar una categoría no afecta
 las otras. Una corrección que cambie los jugadores de un cruce regenera ese partido y elimina
 sus resultados; los otros cruces se mantienen si sus jugadores no cambian. Cambiar una partida de la final elimina su Armagedón.
 
