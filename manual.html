@@ -666,7 +666,7 @@ details{background:#fff;border-color:var(--line)}
 <style data-bundle="manual.css">
 /* Estilos de la guía; las pantallas del torneo conservan su diseño. */
 .page-manual{--guide-body:clamp(16px,.98vw,18px);font-size:var(--guide-body);line-height:1.65;padding-bottom:0}
-.page-manual .sitebar{max-width:none;width:100%;margin:0}
+
 .page-manual .sitebar a[aria-current=page]{color:var(--gold)}
 .manual-header{max-width:1640px;margin:0 auto;padding:clamp(30px,3.4vw,60px) 34px 34px;display:flex;align-items:center;justify-content:space-between;gap:24px}
 .manual-header h1{margin:0;font-size:var(--page-title-size,42px);letter-spacing:-.035em;line-height:1.15}
@@ -767,6 +767,21 @@ details{background:#fff;border-color:var(--line)}
 .manual-details summary::marker{content:''}
 .manual-details summary::before{content:'';display:block;flex:none;width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);margin-right:2px}
 .manual-details[open] summary::before{transform:rotate(45deg)}
+
+/* La guía conserva la cabecera compartida y aprovecha el ancho del sitio. */
+.page-manual .sitebar{line-height:1.5}
+.manual-header{width:calc(100% - 96px);max-width:none;padding:28px 0 30px;margin:0 auto}
+.manual-layout{width:calc(100% - 96px);max-width:none;margin:0 auto;padding:0 0 70px;grid-template-columns:240px minmax(0,1fr);gap:clamp(30px,3vw,58px)}
+@media(min-width:761px) and (max-width:1000px){
+ .manual-header,.manual-layout{width:calc(100% - 48px)}
+ .manual-header{padding:28px 0}
+ .manual-layout{grid-template-columns:190px minmax(0,1fr);gap:24px;padding:0 0 50px}
+}
+@media(max-width:760px){
+ .manual-header,.manual-layout{width:calc(100% - 36px)}
+ .manual-header{padding:28px 0}
+ .manual-layout{display:block;padding:0 0 32px}
+}
 
 </style>
 <!-- /bundle:manual.css --></head>
