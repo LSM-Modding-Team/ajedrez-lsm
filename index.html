@@ -24,6 +24,35 @@ a{color:inherit;text-decoration:none}a:focus-visible{outline:3px solid var(--red
 @media(max-width:650px){.sitebar{width:calc(100% - 36px);padding:22px 0 17px;align-items:flex-start;gap:20px}.event-brand img{width:143px}.sitebar nav{flex-wrap:wrap;justify-content:flex-end;gap:5px 16px;max-width:190px}.sitebar nav a{font-size:11px;padding:5px 0}.division-heading,.division-main{width:calc(100% - 36px)}.division-heading{padding:30px 0 25px}h1{font-size:62px}.divisions{grid-template-columns:1fr;min-height:0}.division{display:grid;grid-template-columns:65px 1fr;gap:13px 20px;padding:25px 22px;border-right:0;border-bottom:1px solid var(--line)}.division-symbol{font-size:65px;margin:0;grid-row:1/3}.division h2{font-size:25px;margin:0;align-self:center}.division-actions{flex-direction:row;gap:25px}.division-actions a{border:0;padding:4px 0;gap:20px;font-size:14px}.division-actions a span{font-size:19px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
+
+/* Fullscreen tournament entrance: school red, yellow and warm white. */
+:root{--yellow:#ffd00b;--line:#dcd9d0}
+body{background:#f8f7f2}
+body:before{border-top-width:6px}
+.sitebar,.division-heading,.division-main{width:calc(100% - 96px);max-width:none}
+.sitebar{min-height:clamp(110px,13vh,145px)}
+.event-brand img{width:clamp(205px,14vw,265px)}
+.sitebar nav{gap:clamp(24px,2.5vw,48px)}
+.sitebar nav a{font-size:clamp(16px,1.15vw,22px);padding:15px 0}
+.sitebar nav a[aria-current]:after{height:4px;background:var(--yellow);bottom:1px}
+.division-heading{padding:clamp(24px,3.5vh,42px) 0 clamp(24px,3.5vh,42px)}
+h1{font-size:clamp(68px,6vw,112px)}
+.division-main{padding-bottom:32px}
+.divisions{max-height:none;min-height:400px;border-top:6px solid var(--yellow)}
+.division{padding:clamp(25px,2.6vw,52px);padding-top:clamp(20px,3vh,36px);padding-bottom:clamp(25px,3.5vh,42px)}
+.division-symbol{flex:1;display:flex;align-items:center;font-size:clamp(108px,17vh,205px);margin:0 0 20px;min-height:130px}
+.division h2{max-width:none;font-size:clamp(30px,2.65vw,52px);line-height:1.2;margin:0 0 clamp(24px,3.5vh,42px)}
+.division-actions{margin-top:0;gap:0}
+.division-actions a{font-size:clamp(20px,1.5vw,29px);min-height:clamp(64px,8.5vh,104px);padding:18px 20px;border-top:0;border-bottom:1px solid var(--line)}
+.division-actions a:first-child{background:var(--yellow);color:#43231c;border-bottom:0}
+.division-actions a:first-child:hover{background:#f2c400;color:#43231c}
+.division-actions a:last-child:hover{background:#faf4dd}
+.division-actions a span{font-size:32px}
+.division-actions a:hover{padding-left:25px;padding-right:15px}
+@media(max-width:1000px){.sitebar,.division-heading,.division-main{width:calc(100% - 48px)}.sitebar nav{gap:20px}.sitebar nav a{font-size:15px}.event-brand img{width:195px}.division{padding:26px 22px}.division h2{font-size:30px}.division-actions a{font-size:20px;padding:16px 14px}.division-symbol{font-size:125px}}
+@media(min-width:651px) and (max-height:760px){.sitebar{min-height:96px}.event-brand img{width:190px}.division-heading{padding:20px 0}h1{font-size:70px}.division-main{padding-bottom:24px}.divisions{min-height:350px}.division{padding:20px 28px}.division-symbol{min-height:90px;font-size:110px;margin-bottom:12px}.division h2{font-size:clamp(28px,2.65vw,46px);margin-bottom:20px}.division-actions a{min-height:60px;font-size:21px;padding:12px 18px}}
+@media(max-width:650px){.sitebar{width:calc(100% - 36px);min-height:105px}.event-brand img{width:143px}.sitebar nav{gap:6px 14px}.sitebar nav a{font-size:12px;padding:6px 0}.division-heading,.division-main{width:calc(100% - 36px)}.division-heading{padding:28px 0 24px}h1{font-size:62px}.divisions{min-height:0}.division{padding:24px 20px;gap:12px 16px}.division-symbol{font-size:68px;min-height:0;margin:0;display:block}.division h2{font-size:25px;margin:0}.division-actions{gap:12px;flex-wrap:wrap}.division-actions a{font-size:15px;min-height:42px;padding:7px 12px;gap:15px}.division-actions a span{font-size:20px}.division-actions a:hover{padding:7px 12px}.division-actions a:last-child{border:0}}
+
 </style>
 </head>
 <body class="page-index">
