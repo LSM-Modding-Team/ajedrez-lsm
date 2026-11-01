@@ -661,6 +661,17 @@ details{background:#fff;border-color:var(--line)}
  .sitebar nav a{font-size:12px;padding:6px 0}
 }
 
+/* Los contenidos usan los mismos márgenes laterales que Torneos. */
+:root{--page-gutter:48px}
+@media(max-width:1000px){:root{--page-gutter:24px}}
+@media(max-width:650px){:root{--page-gutter:18px}}
+.page-control .top,.page-publico-primaria .top,.page-publico-secundaria .top,
+.page-control main,.page-publico-primaria main.wide,.page-publico-secundaria main.wide,
+.page-control .databar{padding-left:var(--page-gutter);padding-right:var(--page-gutter);max-width:none;width:100%}
+.page-control nav.tabs{margin-left:var(--page-gutter);margin-right:var(--page-gutter);width:calc(100% - var(--page-gutter)*2);max-width:none;padding-left:0;padding-right:0}
+.page-control .clock-help{margin-left:var(--page-gutter);margin-right:var(--page-gutter)}
+.page-config .config-actions{width:calc(100% - var(--page-gutter)*2);max-width:none}
+
 </style>
 <!-- /bundle:style.css --><!-- bundle:manual.css -->
 <style data-bundle="manual.css">
