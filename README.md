@@ -154,3 +154,14 @@ archivos adicionales para mostrarse o funcionar. No requiere instalar paquetes.
 La aplicación guarda una copia de sus siete pantallas después de la primera carga.
 Ese caché solo contiene la interfaz; nombres, resultados y relojes siguen en
 localStorage. Las actualizaciones del caché se preparan en segundo plano.
+
+## Capturas de documentación
+
+`node scripts/capture_guide.cjs` regenera las imágenes de `assets/guide` con
+Playwright y Sharp instalados. `CHROME_PATH` permite elegir un navegador Chromium
+instalado. El script inicia un servidor local y usa un perfil temporal con nombres
+y resultados ficticios; no modifica la configuración del sitio publicado.
+Las capturas incluyen un margen de 24 píxeles alrededor del contenido.
+`assets/guide/captures.json` registra sus dimensiones y pantallas de origen.
+Al sustituirlas, actualiza también sus dimensiones y versiones en `manual.html`,
+las imágenes de la propuesta PDF y la versión de la caché.

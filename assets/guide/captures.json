@@ -1,0 +1,79 @@
+{
+  "configuracion": {
+    "width": 2088,
+    "height": 681,
+    "source": "/config.html",
+    "selector": "#app > .panel:has(> h2:text-is(\"Primaria\"))",
+    "margin": 24
+  },
+  "grupos-primaria": {
+    "width": 2088,
+    "height": 387,
+    "source": "/arbitro-primaria.html",
+    "selector": ".round-timer",
+    "margin": 24
+  },
+  "registro-grupos": {
+    "width": 2088,
+    "height": 1017,
+    "source": "/arbitro-secundaria.html?categoria=baja",
+    "selector": "#app > .group-columns > .panel:first-child",
+    "margin": 24
+  },
+  "grupo-publico": {
+    "width": 1062,
+    "height": 585,
+    "source": "/publico-secundaria.html?categoria=baja",
+    "selector": ".group-columns > .panel:first-child",
+    "margin": 24
+  },
+  "final-secundaria": {
+    "width": 771,
+    "height": 324,
+    "source": "/publico-secundaria.html?categoria=baja",
+    "selector": "#mb-final",
+    "margin": 24
+  },
+  "puntos-color": {
+    "width": 591,
+    "height": 609,
+    "source": "/publico-secundaria.html?categoria=baja",
+    "selector": ".public-sidebar",
+    "margin": 24
+  },
+  "cruces-secundaria": {
+    "width": 1535,
+    "height": 701,
+    "source": "/publico-secundaria.html?categoria=alta",
+    "selector": "#bracketWrap",
+    "margin": 24
+  },
+  "publico-secundaria": {
+    "width": 2232,
+    "height": 1572,
+    "source": "/publico-secundaria.html?categoria=alta",
+    "selector": "body",
+    "margin": 24
+  },
+  "publico-primaria": {
+    "width": 2232,
+    "height": 1572,
+    "source": "/publico-primaria.html",
+    "selector": "body",
+    "margin": 24
+  },
+  "portada": {
+    "width": 2232,
+    "height": 1572,
+    "source": "/index.html",
+    "selector": "body",
+    "margin": 24
+  },
+  "sorteo": {
+    "width": 2232,
+    "height": 1572,
+    "source": "/publico-secundaria.html?categoria=alta#sorteo",
+    "selector": "body",
+    "margin": 24
+  }
+}
