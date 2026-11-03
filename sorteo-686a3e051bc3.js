@@ -92,6 +92,27 @@ function createPublicDraw(mode,refresh){
   let timer=null,observer=null,animation=null;
   const sound=createDrawAudio();
   const read=()=>getSecundaria(mode);
+  // Outside #app: live draw updates must not close the information dialog.
+  const calendar=document.createElement('dialog');
+  calendar.className='draw-calendar';
+  calendar.setAttribute('aria-labelledby','draw-calendar-title');
+  calendar.innerHTML=`<div class="draw-calendar-heading"><h2 id="draw-calendar-title">Del sorteo a los cruces</h2><button type="button" class="btn ghost" data-draw-action="close-calendar" autofocus>Cerrar</button></div>
+    <p>El mismo calendario se aplica a primaria y a las dos secundarias. Cada salida de la ruleta asigna a los dos participantes de un color:</p>
+    <div class="draw-calendar-table"><table><thead><tr><th>Salida</th><th>Mayor</th><th>Menor</th></tr></thead><tbody>
+      <tr><td>1.ª</td><td>Grupo 1 · posición 1</td><td>Grupo 2 · posición 3</td></tr>
+      <tr><td>2.ª</td><td>Grupo 2 · posición 1</td><td>Grupo 1 · posición 3</td></tr>
+      <tr><td>3.ª</td><td>Grupo 1 · posición 2</td><td>Grupo 2 · posición 4</td></tr>
+      <tr><td>4.ª</td><td>Grupo 2 · posición 2</td><td>Grupo 1 · posición 4</td></tr>
+    </tbody></table></div>
+    <h3>Tres rondas en cada grupo</h3>
+    <p>Las posiciones <b>1 y 2 son los Mayores; 3 y 4 son los Menores</b>. En cada pareja figura primero quien lleva <b>blancas</b> y después quien lleva <b>negras</b>.</p>
+    <div class="draw-calendar-table"><table><thead><tr><th>Ronda</th><th>Tablero 1<br>Blancas / negras</th><th>Tablero 2<br>Blancas / negras</th></tr></thead><tbody>
+      <tr><td>1</td><td>1 / 2</td><td>3 / 4</td></tr><tr><td>2</td><td>3 / 1</td><td>4 / 2</td></tr><tr><td>3</td><td>4 / 1</td><td>2 / 3</td></tr>
+    </tbody></table></div>
+    <p>Dos tableros por grupo; cuatro si ambos juegan a la vez. Todos se enfrentan una vez a los otros tres. Mayor juega dos veces con negras y Menor, dos con blancas.</p>
+    <p><b>Son posiciones del sorteo, no puestos de clasificación.</b> Los resultados no cambian los cruces ni el orden de las rondas.</p>`;
+  document.body.append(calendar);
+  calendar.addEventListener('close',()=>document.querySelector('[data-draw-action="calendar"]')?.focus());
   const title=document.querySelector('header.top');
   const switcher=document.createElement('div');
   switcher.className='public-view-switch';switcher.setAttribute('aria-label','Vista pública');title.append(switcher);
@@ -99,6 +120,8 @@ function createPublicDraw(mode,refresh){
   document.addEventListener('click',event=>{
     const action=event.target.closest('[data-draw-action]')?.dataset.drawAction;
     if(!action)return;
+    if(action==='calendar'){calendar.showModal();return;}
+    if(action==='close-calendar'){calendar.close();return;}
     const state=read();
     if(action==='spin' && categoryConfigured(mode) && startDrawSpinS(state)){
       sound.unlock(state.draw.spin);saveSecundaria(state);
@@ -145,7 +168,7 @@ function createPublicDraw(mode,refresh){
     const message=complete?'Grupos completos':holding?COLOR_META[draw.order[step]].label:['Primera salida','Segunda salida','Tercera salida'][step];
     const revealed=draw?.revealed||0;
     document.getElementById('app').innerHTML=`<section class="draw-screen" aria-label="Sorteo de grupos">
-      <h2 class="draw-title">Sorteo de grupos</h2>
+      <div class="draw-heading"><h2 class="draw-title">Sorteo de grupos</h2><button type="button" class="btn ghost" data-draw-action="calendar" aria-haspopup="dialog">Ver cruces y calendario</button></div>
       <div class="draw-stage">
         <svg class="draw-links" aria-hidden="true"><defs><marker id="draw-arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 1 L9 5 L0 9" fill="none" stroke="currentColor" stroke-width="1.6"/></marker></defs></svg>
         ${drawGroupHTML(state,mode,'A',targets)}

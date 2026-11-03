@@ -426,6 +426,19 @@ nav.tabs button{background:#151a1e}
 .draw-mode main.wide{display:block!important;overflow:visible}
 .draw-screen{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:12px;min-height:0}
 .draw-title{margin:0;font-size:clamp(21px,1.6vw,30px);font-weight:600;color:var(--ink-muted)}
+.draw-heading,.draw-calendar-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.draw-heading .btn{font-size:15px;padding:10px 16px}
+dialog.draw-calendar{box-sizing:border-box;position:fixed;inset:0;width:min(780px,calc(100% - 32px));max-height:calc(100dvh - 32px);margin:auto;padding:28px;border:1px solid var(--line);border-top:4px solid var(--red);border-radius:4px;background:#fff;color:var(--ink);overflow:auto;font-size:16px;line-height:1.6}
+.draw-calendar::backdrop{background:rgba(20,24,28,.65)}
+.draw-calendar-heading h2{margin:0;font-size:25px;line-height:1.3}
+.draw-calendar h3{font-size:20px;margin:24px 0 12px}
+.draw-calendar p{margin:16px 0}
+.draw-calendar-table{overflow-x:auto}
+.draw-calendar table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:15px;min-width:0}
+.draw-calendar th,.draw-calendar td{padding:10px;text-align:left;border-bottom:1px solid var(--line);white-space:normal;overflow-wrap:break-word}
+.draw-calendar th{background:#f5f2eb;color:var(--ink);font-size:13px;letter-spacing:0;text-transform:none}
+.draw-calendar th:first-child{width:18%}
+@media(max-width:520px){dialog.draw-calendar{padding:18px;font-size:15px}.draw-calendar-heading h2{font-size:22px}.draw-calendar table{font-size:13px}.draw-calendar th,.draw-calendar td{padding:8px 6px}}
 .draw-stage{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.85fr) minmax(0,1fr);gap:clamp(28px,4vw,80px);align-items:center;min-height:0}
 .draw-group{position:relative;z-index:1;min-width:0}
 .draw-group h3{font-size:clamp(22px,1.8vw,34px);font-weight:700;letter-spacing:-.5px;margin:0 0 20px}
